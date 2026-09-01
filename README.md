@@ -30,7 +30,7 @@
 最新版 APK 从这里下载：
 
 - **直接下载地址（v1.0.0）**：
-  `https://github.com/AC-kiko/fitness-discipline-tracker/releases/download/v1.0.0/App.apk`
+  `https://github.com/AC-kiko/fitness-discipline-tracker/releases/download/v1.0.0/fitness-discipline-tracker-v1.0.0.apk`
 - **Release 页面（查看所有版本与更新说明）**：
   `https://github.com/AC-kiko/fitness-discipline-tracker/releases`
 
