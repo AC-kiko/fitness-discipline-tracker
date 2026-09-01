@@ -92,7 +92,8 @@
   .item .fields label{display:block;font-size:11px;color:var(--muted);margin-bottom:3px}
   .item .fields input,.item .fields textarea{width:100%;border:1px solid var(--line);border-radius:8px;padding:8px 9px;font-size:14px;background:#fff;font-family:inherit}
   .item .fields textarea{resize:none}
-  .item.done{border-color:#bfe6cd;background:var(--green-soft)}
+.item .act-row{display:flex;gap:8px;margin-top:4px}
+.item.done{border-color:#bfe6cd;background:var(--green-soft)}
 
   .hint{font-size:12px;color:var(--muted);background:#f6f8fb;border:1px dashed var(--line);border-radius:10px;padding:9px 11px;margin-bottom:14px}
 
@@ -270,6 +271,7 @@
   .cal-cell.l2{background:#a9e3c3}
   .cal-cell.l3{background:#54c68d}
   .cal-cell.l4{background:#18a66c}
+.cal-cell.today{outline:2px solid #2563eb;outline-offset:1px}
   .cal-cell.none{background:#f6f8f9;cursor:default}
   .cal-cell.none:hover{transform:none;box-shadow:none}
   .cal-legend{display:flex;align-items:center;gap:4px;font-size:11px;color:var(--muted);margin-top:12px;flex-wrap:wrap}
@@ -401,7 +403,7 @@
           <div class="tp">目标 3×8–12</div>
           <div class="meta"><span class="chip">未填</span></div>
         </div>
-        <div class="ck " onclick="event.stopPropagation();toggleDone(0)"></div>
+        <div class="ck "></div>
         <div class="chevron">⌄</div>
       </div>
       <div class="expand" onclick="event.stopPropagation()">
@@ -418,7 +420,7 @@
           <div class="tp">目标 3×8–12</div>
           <div class="meta"><span class="chip">未填</span></div>
         </div>
-        <div class="ck " onclick="event.stopPropagation();toggleDone(1)"></div>
+        <div class="ck "></div>
         <div class="chevron">⌄</div>
       </div>
       <div class="expand" onclick="event.stopPropagation()">
@@ -435,7 +437,7 @@
           <div class="tp">目标 3×8–12</div>
           <div class="meta"><span class="chip">未填</span></div>
         </div>
-        <div class="ck " onclick="event.stopPropagation();toggleDone(2)"></div>
+        <div class="ck "></div>
         <div class="chevron">⌄</div>
       </div>
       <div class="expand" onclick="event.stopPropagation()">
@@ -452,7 +454,7 @@
           <div class="tp">目标 3×12–15</div>
           <div class="meta"><span class="chip">未填</span></div>
         </div>
-        <div class="ck " onclick="event.stopPropagation();toggleDone(3)"></div>
+        <div class="ck "></div>
         <div class="chevron">⌄</div>
       </div>
       <div class="expand" onclick="event.stopPropagation()">
@@ -469,7 +471,7 @@
           <div class="tp">目标 3×10–15</div>
           <div class="meta"><span class="chip">未填</span></div>
         </div>
-        <div class="ck " onclick="event.stopPropagation();toggleDone(4)"></div>
+        <div class="ck "></div>
         <div class="chevron">⌄</div>
       </div>
       <div class="expand" onclick="event.stopPropagation()">
@@ -486,7 +488,7 @@
           <div class="tp">目标 3×12–15</div>
           <div class="meta"><span class="chip">未填</span></div>
         </div>
-        <div class="ck " onclick="event.stopPropagation();toggleDone(5)"></div>
+        <div class="ck "></div>
         <div class="chevron">⌄</div>
       </div>
       <div class="expand" onclick="event.stopPropagation()">
@@ -503,7 +505,7 @@
           <div class="tp">目标 12–15min</div>
           <div class="meta"><span class="chip">未填</span></div>
         </div>
-        <div class="ck " onclick="event.stopPropagation();toggleDone(6)"></div>
+        <div class="ck "></div>
         <div class="chevron">⌄</div>
       </div>
       <div class="expand" onclick="event.stopPropagation()">
@@ -556,7 +558,7 @@ let DAYS = {
 const DAY_ORDER = [1,2,3,4];
 
 /* ---------- 在线更新配置 ---------- */
-const APP_VERSION = '1.4.0';                 // 当前版本，随发版手动递增
+const APP_VERSION = '1.5.0';                 // 当前版本，随发版手动递增
 const UPDATE_REPO = 'AC-kiko/fitness-discipline-tracker'; // 改成你的 owner/repo（不含 https）
 function updateApiUrl(){ return 'https://api.github.com/repos/'+UPDATE_REPO+'/releases/latest'; }
 function fmtBytes(n){ if(!n||n<0) return '--'; if(n<1024) return n+' B'; if(n<1048576) return (n/1024).toFixed(1)+' KB'; return (n/1048576).toFixed(2)+' MB'; }
@@ -849,8 +851,8 @@ function loadWeek(monday){
     const its = data[n].items||[];
     data[n].items = DAYS[n].items.map((_,i)=> its[i]? {
         val:String(its[i].val!==undefined?its[i].val:(its[i].weight||'')),
-        done:!!its[i].done, note:its[i].note||'', skip:!!its[i].skip
-      } : {val:'',done:false,note:'',skip:false});
+        done:!!its[i].done, note:its[i].note||'', skip:!!its[i].skip, doneAt:its[i].doneAt||''
+      } : {val:'',done:false,note:'',skip:false,doneAt:''});
   });
   if(!data.meta) data.meta={};
   return {key,data};
@@ -947,7 +949,7 @@ function openDetail(n){
           <div class="tp">目标 ${it.target}</div>
           <div class="meta">${chips}</div>
         </div>
-        <div class="ck ${rec.done?'on':''}" onclick="event.stopPropagation();toggleDone(${i})"></div>
+        <div class="ck ${rec.done?'on':''}"></div>
         <div class="chevron">⌄</div>
       </div>
       <div class="expand" onclick="event.stopPropagation()">
@@ -955,7 +957,10 @@ function openDetail(n){
           <div><label>${fieldLabel(it)}</label><input type="number" inputmode="decimal" value="${rec.val}" placeholder="0" oninput="setVal(${i},this.value)"></div>
           <div><label>备注</label><input type="text" value="${rec.note||''}" placeholder="如 留2次余量" oninput="setNote(${i},this.value)"></div>
         </div>
-        <button class="btn mini ghost" onclick="event.stopPropagation();skipAction(${i})">摸鱼跳过该项 · 记 0</button>
+        <div class="act-row">
+          <button class="btn mini" onclick="event.stopPropagation();completeAction(${i})">${rec.done?'已完成':'✓ 完成'}</button>
+          <button class="btn mini ghost" onclick="event.stopPropagation();skipAction(${i})">摸鱼跳过该项 · 记 0</button>
+        </div>
       </div>
     </div>`;
   }).join('')
@@ -967,7 +972,17 @@ function openDetail(n){
 function toggleExp(i,e){ if(e) e.stopPropagation(); const it=document.querySelectorAll('#sheetBody .item')[i]; if(it) it.classList.toggle('expanded'); }
 function closeDetail(){ activeDay=null; document.getElementById('sheet').classList.remove('show'); document.getElementById('overlay').classList.remove('show'); document.body.style.overflow=''; render(); }
 function patch(i,fn){ const {data}=loadWeek(); fn(data[activeDay].items[i]); save(data); }
-function toggleDone(i){ patch(i,r=>{ r.done=!r.done; if(r.done) r.skip=false; }); const it=document.querySelectorAll('#sheetBody .item')[i]; if(it) it.classList.toggle('done'); }
+function ymdKey(date){ return date.getFullYear()+'-'+String(date.getMonth()+1).padStart(2,'0')+'-'+String(date.getDate()).padStart(2,'0'); }
+function completeAction(i){
+  const {data}=loadWeek();
+  const r=data[activeDay].items[i];
+  if(!r.done){
+    if(r.val===''||r.val===null||r.val===undefined){ showMsg('请先填写数值','请先填写本动作的数值（重量 / 次数 / 时长），再点击「完成」。'); return; }
+    r.done=true; r.skip=false; r.doneAt=ymdKey(new Date());
+  } else { r.done=false; }
+  save(data);
+  openDetail(activeDay);
+}
 function setVal(i,v){ patch(i,r=>{ r.val=v; r.skip=false; }); }
 function setNote(i,v){ patch(i,r=>r.note=v); }
 function skipAction(i){ patch(i,r=>{ r.val='0'; r.skip=true; r.done=true; }); openDetail(activeDay); }
@@ -1131,42 +1146,62 @@ document.getElementById('prevW').onclick=()=>{ cur=new Date(mondayOf(cur)); cur.
 document.getElementById('nextW').onclick=()=>{ cur=new Date(mondayOf(cur)); cur.setDate(cur.getDate()+7); render(); };
 
 /* ---------- 训练活跃日历（需求 2） ---------- */
-function dayForWeekday(wd){
-  const fb={1:1,2:2,4:3,5:4};
-  for(const n of DAY_ORDER){ const d=DAYS[n]; if(d&&d.weekdays&&d.weekdays.indexOf(wd)>-1) return n; }
-  return fb[wd]||0;
+function parseStampKey(s){
+  return new Date(+s.slice(0,4), +s.slice(4,6)-1, +s.slice(6,8));
+}
+function parseISOKey(s){ const p=s.split('-'); return new Date(+p[0], +p[1]-1, +p[2]); }
+function fmtDateKey(k){ const p=k.split('-'); return (+p[1])+'/'+(+p[2]); }
+function calLevel(c){
+  if(c<=0) return 0;
+  if(c<=1) return 1;
+  if(c<=3) return 2;
+  if(c<=5) return 3;
+  return 4;
 }
 function openCalendar(){
   const weeks=collectWeeks();
-  const stamps=weeks.map(w=>w.stamp).sort();
-  if(!stamps.length){ showMsg('提示','暂无训练数据'); return; }
-  const first=stamps[0], last=stamps[stamps.length-1];
-  document.getElementById('calRange').innerHTML = '共 <b>'+weeks.length+'</b> 周训练　'+ (+first.slice(4,6))+'/'+ (+first.slice(6,8))+' – '+(+last.slice(4,6))+'/'+ (+last.slice(6,8));
+  if(!weeks.length){ showMsg('提示','暂无训练数据'); return; }
 
-  let start = new Date(+first.slice(0,4), +first.slice(4,6)-1, +first.slice(6,8));
-  start = mondayOf(start);
-  let end = new Date(+last.slice(0,4), +last.slice(4,6)-1, +last.slice(6,8)+7);
-  end = mondayOf(end);
+  // 汇总：按真实日期统计「当天完成（非摸鱼）的动作数量」
+  const cnt={}; let min=null, max=null;
+  weeks.forEach(w=>{
+    const wkStart = parseStampKey(w.stamp);
+    DAY_ORDER.forEach(n=>{
+      const d=w.data[n]; if(!d||!d.items) return;
+      d.items.forEach(rec=>{
+        if(!rec||!rec.done||rec.skip) return;
+        const date = (/(\d{4})-(\d{2})-(\d{2})/.test(rec.doneAt)) ? rec.doneAt : ymdKey(wkStart);
+        cnt[date]=(cnt[date]||0)+1;
+        if(!min||date<min) min=date;
+        if(!max||date>max) max=date;
+      });
+    });
+  });
+  if(!min){ showMsg('提示','暂无完成记录'); return; }
 
+  const totalActs=Object.values(cnt).reduce((a,b)=>a+b,0);
+  const activeDays=Object.keys(cnt).length;
+  document.getElementById('calRange').innerHTML = '完成动作 <b>'+totalActs+'</b> 个 · 活跃 <b>'+activeDays+'</b> 天　'+fmtDateKey(min)+' – '+fmtDateKey(max);
+
+  const start = mondayOf(parseISOKey(min));
+  const endD = parseISOKey(max);
+  const todayK = ymdKey(new Date());
   const inner=document.getElementById('calInner'); inner.innerHTML='';
-  let curDay = new Date(start);
-  while(curDay <= end){
+
+  let curDay=new Date(start);
+  while(curDay.getTime() <= endD.getTime()){
     const col=document.createElement('div'); col.className='cal-col';
-    const thisMonday = new Date(curDay);
     for(let wd=1; wd<=7; wd++){
-      const n = dayForWeekday(wd);
+      const d=new Date(curDay); d.setDate(curDay.getDate()+(wd-1));
+      const k=ymdKey(d);
       const cell=document.createElement('div');
-      if(n===0){ cell.className='cal-cell none'; }
+      const inRange = (k>=min && k<=max);
+      if(!inRange){ cell.className='cal-cell none'; }
       else{
-        let data={}; try{ const raw=localStorage.getItem(weekKey(thisMonday)); data=raw?JSON.parse(raw):{}; }catch(e){}
-        const its = data[n]&&Array.isArray(data[n].items)? data[n].items : [];
-        const done = its.filter(i=>i&&i.done&&!i.skip).length;
-        const allSkip = its.length && its.every(i=>i&&i.done&&i.skip);
-        let lv = (done===0||allSkip)? 0 : (done>=its.length? 4 : Math.max(1, Math.round(done/its.length*4)));
-        cell.className='cal-cell l'+lv;
-        const ddate=new Date(thisMonday); ddate.setDate(ddate.getDate()+(wd-1));
-        cell.title = (ddate.getMonth()+1)+'/'+ddate.getDate()+' · '+(DAYS[n]?DAYS[n].title:'')+' · 完成 '+lv+'/4'+(allSkip?'（摸鱼）':'');
-        cell.onclick=()=>{ cur = new Date(thisMonday); closeDialog('calModel'); switchView('plan'); render(); };
+        const c=cnt[k]||0, lv=calLevel(c);
+        cell.className='cal-cell l'+lv+(k===todayK?' today':'');
+        cell.title=(d.getMonth()+1)+'/'+d.getDate()+' · 完成 '+c+' 个动作';
+        cell.onclick=()=>{ cur=mondayOf(d); closeDialog('calModel'); switchView('plan'); render(); };
       }
       col.appendChild(cell);
     }
