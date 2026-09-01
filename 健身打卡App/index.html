@@ -549,7 +549,7 @@ let DAYS = {
 const DAY_ORDER = [1,2,3,4];
 
 /* ---------- 在线更新配置 ---------- */
-const APP_VERSION = '1.1.0';                 // 当前版本，随发版手动递增
+const APP_VERSION = '1.2.0';                 // 当前版本，随发版手动递增
 const UPDATE_REPO = 'AC-kiko/fitness-discipline-tracker'; // 改成你的 owner/repo（不含 https）
 function updateApiUrl(){ return 'https://api.github.com/repos/'+UPDATE_REPO+'/releases/latest'; }
 function cmpVersion(a,b){ const va=String(a).replace(/^v/,'').split('.').map(Number), vb=String(b).replace(/^v/,'').split('.').map(Number); for(let i=0;i<3;i++){ const x=va[i]||0, y=vb[i]||0; if(x!==y) return x-y; } return 0; }
@@ -569,9 +569,30 @@ function checkUpdate(manual){
       document.getElementById('updNew').textContent='最新 v'+tag;
       document.getElementById('updNote').textContent=(data.body||'').replace(/\r?\n/g,' ').slice(0,200)||'（发布说明为空）';
       const dl=document.getElementById('updDl');
+      dl.textContent='下载并安装';
+      document.getElementById('updStatus').textContent='';
       dl.onclick=()=>{
-        if(apk){ dl.textContent='正在打开下载…'; const a=document.createElement('a'); a.href=apk; a.target='_blank'; a.rel='noopener'; document.body.appendChild(a); a.click(); a.remove(); }
-        else window.open(data.html_url||updateApiUrl(),'_blank');
+        if(!apk){
+          window.open(data.html_url||updateApiUrl(),'_blank');
+          return;
+        }
+        const isNative = !!(window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform());
+        const st=document.getElementById('updStatus');
+        if(isNative && window.Capacitor.Plugins && window.Capacitor.Plugins.AutoUpdate){
+          dl.textContent='正在下载更新…';
+          st.textContent='下载完成后将自动唤起系统安装界面…';
+          window.Capacitor.Plugins.AutoUpdate.installApk({url:apk}).then(()=>{
+            dl.textContent='安装界面已打开';
+            st.textContent='请在系统弹窗中点击「安装」完成更新';
+          }).catch(e=>{
+            dl.textContent='重新下载';
+            st.textContent='更新失败：' + ((e && e.message) || e);
+            const a=document.createElement('a'); a.href=apk; a.target='_blank'; a.rel='noopener'; document.body.appendChild(a); a.click(); a.remove();
+          });
+        } else {
+          dl.textContent='正在打开下载…';
+          const a=document.createElement('a'); a.href=apk; a.target='_blank'; a.rel='noopener'; document.body.appendChild(a); a.click(); a.remove();
+        }
       };
       openDialog('updModel');
     }).catch(()=>{ if(manual){ refreshVersionTag(); alert('检查更新失败：网络或服务不可用'); } });
@@ -1220,7 +1241,8 @@ initMetricBtns();
         <span id="updCur" style="color:var(--muted)"></span><br><br>
         <span id="updNote" style="color:var(--muted)"></span>
       </div>
-      <p style="font-size:12px;color:var(--muted);margin-top:6px">下载 APK 后打开即可覆盖安装，你的训练与身体数据会保留在设备本地。</p>
+      <p style="font-size:12px;color:var(--muted);margin-top:6px">下载完成后自动唤起系统安装界面，你的训练与身体数据会保留在设备本地。</p>
+      <p id="updStatus" style="font-size:12px;color:var(--brand-deep);margin-top:6px;min-height:18px"></p>
     </div>
     <div class="mfoot">
       <button class="btn ghost" onclick="closeDialog('updModel')">稍后再说</button>
