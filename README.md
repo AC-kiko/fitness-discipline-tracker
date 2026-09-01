@@ -23,6 +23,19 @@
 组数记录表/             # 组数记录模板
 ```
 
+## 下载安装（Android APK）
+
+> 仓库名：`fitness-discipline-tracker`（GitHub 不允许仓库名含中文）。
+
+最新版 APK 从这里下载：
+
+- **直接下载地址（v1.0.0）**：
+  `https://github.com/AC-kiko/fitness-discipline-tracker/releases/download/v1.0.0/App.apk`
+- **Release 页面（查看所有版本与更新说明）**：
+  `https://github.com/AC-kiko/fitness-discipline-tracker/releases`
+
+在手机浏览器打开上面的 APK 链接下载，点开后选择「允许安装来自此来源」即可覆盖安装。你的训练与身体数据保存在设备本地，升级不会丢失。
+
 ## 本地运行
 
 直接用浏览器打开 `健身打卡App/index.html` 即可体验网页版。
