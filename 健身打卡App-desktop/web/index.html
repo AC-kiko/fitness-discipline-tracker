@@ -258,24 +258,28 @@
 
   .hint-sel{font-size:12px;color:var(--muted);background:#f6f8fb;border:1px dashed var(--line);border-radius:10px;padding:8px 11px;margin:6px 0 14px}
 
-  /* 日历热力图 */
-  .cal-scroll{overflow:auto;max-height:60vh}
-  .cal-inner{display:flex;gap:3px;min-width:max-content}
-  .cal-col{display:flex;flex-direction:column;gap:3px}
-  .cal-head{display:flex;gap:3px;margin-bottom:6px;min-width:max-content}
-  .cal-head span{width:15px;height:18px;text-align:center;font-size:10px;color:var(--muted)}
-  .cal-cell{width:15px;height:15px;border-radius:4px;background:#eaedf0;cursor:pointer;transition:transform .12s,box-shadow .12s}
-  .cal-cell:hover{transform:scale(1.25);box-shadow:0 0 0 2px var(--brand)}
-  .cal-cell.l0{background:#e9ecee}
-  .cal-cell.l1{background:#d7f2e5}
-  .cal-cell.l2{background:#a9e3c3}
-  .cal-cell.l3{background:#54c68d}
-  .cal-cell.l4{background:#18a66c}
-.cal-cell.today{outline:2px solid #2563eb;outline-offset:1px}
-  .cal-cell.none{background:#f6f8f9;cursor:default}
-  .cal-cell.none:hover{transform:none;box-shadow:none}
+  /* 经典月历（活跃日按深浅绿色标注） */
+  .cal-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+  .cal-title{font-weight:800;font-size:15px;color:var(--ink)}
+  .cal-nav{width:34px;height:34px;border:1px solid var(--line);border-radius:10px;background:#fff;font-size:18px;cursor:pointer;line-height:1;color:var(--brand-deep);transition:transform .1s,background .2s}
+  .cal-nav:active{transform:scale(.92)}
+  .cal-days{display:grid;grid-template-columns:repeat(7,1fr);text-align:center;font-size:11px;color:var(--muted);margin-bottom:6px}
+  .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+  .cal-cell.m{height:38px;width:100%;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:12.5px;font-weight:700;color:#3d4a57;background:#eef1f4;cursor:pointer;transition:transform .12s,box-shadow .12s}
+  .cal-cell.m:hover{transform:scale(1.06);box-shadow:0 0 0 2px var(--brand)}
+  .cal-cell.m.l1{background:#d9f3e6;color:#0b7a4a}
+  .cal-cell.m.l2{background:#aee4c4;color:#0b7a4a}
+  .cal-cell.m.l3{background:#54c68d;color:#fff}
+  .cal-cell.m.l4{background:#18a66c;color:#fff}
+  .cal-cell.m.blank{background:transparent;cursor:default}
+  .cal-cell.m.blank:hover{transform:none;box-shadow:none}
+  .cal-cell.today{outline:2px solid #2563eb;outline-offset:1px}
   .cal-legend{display:flex;align-items:center;gap:4px;font-size:11px;color:var(--muted);margin-top:12px;flex-wrap:wrap}
   .cal-legend .c{width:13px;height:13px;border-radius:3px}
+  .cal-legend .c.l1{background:#d9f3e6}
+  .cal-legend .c.l2{background:#aee4c4}
+  .cal-legend .c.l3{background:#54c68d}
+  .cal-legend .c.l4{background:#18a66c}
   .cal-week{font-size:12px;color:var(--muted);margin-bottom:12px}
   .cal-week b{color:var(--brand-deep)}
 
@@ -558,7 +562,7 @@ let DAYS = {
 const DAY_ORDER = [1,2,3,4];
 
 /* ---------- 在线更新配置 ---------- */
-const APP_VERSION = '1.5.0';                 // 当前版本，随发版手动递增
+const APP_VERSION = '1.6.0';                 // 当前版本，随发版手动递增
 const UPDATE_REPO = 'AC-kiko/fitness-discipline-tracker'; // 改成你的 owner/repo（不含 https）
 function updateApiUrl(){ return 'https://api.github.com/repos/'+UPDATE_REPO+'/releases/latest'; }
 function fmtBytes(n){ if(!n||n<0) return '--'; if(n<1024) return n+' B'; if(n<1048576) return (n/1024).toFixed(1)+' KB'; return (n/1048576).toFixed(2)+' MB'; }
@@ -1060,7 +1064,11 @@ function drawExChart(){
 
   // 每个动作：跨周的原始值（缺失为 null）
   const series=items.map((it,idx)=>{
-    const vals = weeks.map(w=>{ const v=w.data&&w.data[n]&&w.data[n].items? w.data[n].items[idx].val : ''; return (v===''||v===null||v===undefined)? null : parseFloat(v); });
+    const vals = weeks.map(w=>{
+      const day=w.data&&w.data[n]&&w.data[n].items? w.data[n].items[idx] : null;
+      const v=day? day.val : '';
+      return (v===''||v===null||v===undefined)? null : parseFloat(v);
+    });
     return {it, vals};
   });
 
@@ -1145,12 +1153,10 @@ function drawLine(id, labels, vals, unit){
 document.getElementById('prevW').onclick=()=>{ cur=new Date(mondayOf(cur)); cur.setDate(cur.getDate()-1); render(); };
 document.getElementById('nextW').onclick=()=>{ cur=new Date(mondayOf(cur)); cur.setDate(cur.getDate()+7); render(); };
 
-/* ---------- 训练活跃日历（需求 2） ---------- */
+/* ---------- 训练活跃日历（经典月历，需求 2） ---------- */
 function parseStampKey(s){
   return new Date(+s.slice(0,4), +s.slice(4,6)-1, +s.slice(6,8));
 }
-function parseISOKey(s){ const p=s.split('-'); return new Date(+p[0], +p[1]-1, +p[2]); }
-function fmtDateKey(k){ const p=k.split('-'); return (+p[1])+'/'+(+p[2]); }
 function calLevel(c){
   if(c<=0) return 0;
   if(c<=1) return 1;
@@ -1158,12 +1164,11 @@ function calLevel(c){
   if(c<=5) return 3;
   return 4;
 }
-function openCalendar(){
+// 当月所有动作完成情况的汇总：key = 真实日期(yyyy-mm-dd)，value = 当日完成（非摸鱼）的动作数量
+let calMonth = (function(){ const t=new Date(); return new Date(t.getFullYear(), t.getMonth(), 1); })();
+function collectCalCounts(){
+  const cnt={};
   const weeks=collectWeeks();
-  if(!weeks.length){ showMsg('提示','暂无训练数据'); return; }
-
-  // 汇总：按真实日期统计「当天完成（非摸鱼）的动作数量」
-  const cnt={}; let min=null, max=null;
   weeks.forEach(w=>{
     const wkStart = parseStampKey(w.stamp);
     DAY_ORDER.forEach(n=>{
@@ -1172,44 +1177,62 @@ function openCalendar(){
         if(!rec||!rec.done||rec.skip) return;
         const date = (/(\d{4})-(\d{2})-(\d{2})/.test(rec.doneAt)) ? rec.doneAt : ymdKey(wkStart);
         cnt[date]=(cnt[date]||0)+1;
-        if(!min||date<min) min=date;
-        if(!max||date>max) max=date;
       });
     });
   });
-  if(!min){ showMsg('提示','暂无完成记录'); return; }
+  return cnt;
+}
+function renderCalMonth(){
+  const y=calMonth.getFullYear(), m=calMonth.getMonth();
+  document.getElementById('calTitle').textContent = y+'年'+(m+1)+'月';
+  document.getElementById('calDays').innerHTML = ['一','二','三','四','五','六','日'].map(d=>'<span>'+d+'</span>').join('');
+  const cnt=collectCalCounts();
+  const lead=(new Date(y,m,1).getDay()+6)%7;         // 周一为一周开始
+  const dim=new Date(y,m+1,0).getDate();             // 本月总天数
+  const todayK=ymdKey(new Date());
+  const grid=document.getElementById('calGrid'); grid.innerHTML='';
 
-  const totalActs=Object.values(cnt).reduce((a,b)=>a+b,0);
-  const activeDays=Object.keys(cnt).length;
-  document.getElementById('calRange').innerHTML = '完成动作 <b>'+totalActs+'</b> 个 · 活跃 <b>'+activeDays+'</b> 天　'+fmtDateKey(min)+' – '+fmtDateKey(max);
-
-  const start = mondayOf(parseISOKey(min));
-  const endD = parseISOKey(max);
-  const todayK = ymdKey(new Date());
-  const inner=document.getElementById('calInner'); inner.innerHTML='';
-
-  let curDay=new Date(start);
-  while(curDay.getTime() <= endD.getTime()){
-    const col=document.createElement('div'); col.className='cal-col';
-    for(let wd=1; wd<=7; wd++){
-      const d=new Date(curDay); d.setDate(curDay.getDate()+(wd-1));
-      const k=ymdKey(d);
-      const cell=document.createElement('div');
-      const inRange = (k>=min && k<=max);
-      if(!inRange){ cell.className='cal-cell none'; }
-      else{
-        const c=cnt[k]||0, lv=calLevel(c);
-        cell.className='cal-cell l'+lv+(k===todayK?' today':'');
-        cell.title=(d.getMonth()+1)+'/'+d.getDate()+' · 完成 '+c+' 个动作';
-        cell.onclick=()=>{ cur=mondayOf(d); closeDialog('calModel'); switchView('plan'); render(); };
-      }
-      col.appendChild(cell);
-    }
-    inner.appendChild(col);
-    curDay.setDate(curDay.getDate()+7);
+  for(let i=0;i<lead;i++){ const b=document.createElement('div'); b.className='cal-cell m blank'; grid.appendChild(b); }
+  for(let d=1; d<=dim; d++){
+    const k=ymdKey(new Date(y,m,d));
+    const c=cnt[k]||0, lv=calLevel(c);
+    const cell=document.createElement('div');
+    cell.className='cal-cell m'+(lv?' l'+lv:'')+(k===todayK?' today':'');
+    cell.textContent=d;
+    cell.title=(m+1)+'月'+d+'日'+(c?' · 完成 '+c+' 个动作':'');
+    cell.onclick=()=>{ jumpToMonthDay(y,m,d); };
+    grid.appendChild(cell);
   }
+}
+function calMonthNav(delta){
+  calMonth=new Date(calMonth.getFullYear(), calMonth.getMonth()+delta, 1);
+  renderCalMonth();
+}
+function findDayByDoneAt(monday, date){
+  // 计划无固定训练日，一周任选四天：按完成记录归属确定该日期属于哪个训练日（动作可能分批多天完成）
+  const k=ymdKey(date), {data}=loadWeek(monday);
+  for(const n of DAY_ORDER){
+    const items=(data[n]&&data[n].items)||[];
+    if(items.some(r=> r.done && !r.skip && r.doneAt===k)) return n;
+  }
+  return 0;
+}
+function jumpToMonthDay(y,m,d){
+  const target=new Date(y,m,d);
+  const monday=mondayOf(target);
+  const day=findDayByDoneAt(monday, target);
+  cur=monday;              // 让 loadWeek 与 save 定位到该训练周
+  switchView('plan');
+  render();
+  if(day){
+    // 该日有完成记录 → 直接拉起对应训练日的动作卡片
+    openDetail(day);
+  }
+  // 无记录：落在周计划视图，由用户任选训练日填写
+}
+function openCalendar(){
+  renderCalMonth();
   openDialog('calModel');
-  const ie=document.getElementById('calInner'); ie.scrollLeft=ie.scrollWidth;
 }
 
 render();
@@ -1231,15 +1254,19 @@ initMetricBtns();
   <div class="box">
     <div class="mhead"><h3>训练活跃日历</h3><button class="sheet-close" onclick="closeDialog('calModel')">✕</button></div>
     <div class="mbody">
-      <div class="cal-week" id="calRange"></div>
-      <div class="cal-head"><span></span><span>周一</span><span>周二</span><span>周三</span><span>周四</span><span>周五</span><span>周六</span><span>周日</span></div>
-      <div class="cal-scroll"><div class="cal-inner" id="calInner"></div></div>
+      <div class="cal-top">
+        <button class="cal-nav" onclick="calMonthNav(-1)">‹</button>
+        <div class="cal-title" id="calTitle">2026年8月</div>
+        <button class="cal-nav" onclick="calMonthNav(1)">›</button>
+      </div>
+      <div class="cal-days" id="calDays"></div>
+      <div class="cal-grid" id="calGrid"></div>
       <div class="cal-legend">
         <span>少</span>
         <span class="c l1"></span><span class="c l2"></span>
         <span class="c l3"></span><span class="c l4"></span>
         <span>多</span>
-        <span style="margin-left:10px;opacity:.75">点击任意格子可跳转到对应周</span>
+        <span style="margin-left:10px;opacity:.75">绿色越深表示当日完成（非摸鱼）的动作越多 · 点击日期打开当天动作记录</span>
       </div>
     </div>
   </div>
