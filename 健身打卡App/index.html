@@ -29,9 +29,6 @@
   .chart-tabs button{flex:1;border:none;background:transparent;border-radius:9px;padding:10px 0;font-size:13px;font-weight:700;color:var(--muted);cursor:pointer;font-family:inherit}
   .chart-tabs button.on{background:#fff;color:var(--brand);box-shadow:0 1px 2px rgba(0,0,0,.08)}
 
-  .settings-head{display:flex;align-items:center;justify-content:space-between;padding:4px 2px 14px}
-  .settings-head h3{font-size:18px;font-weight:800}
-
   .week-nav{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:14px}
   .week-nav button{background:#fff;border:1px solid var(--line);border-radius:10px;width:34px;height:34px;font-size:18px;color:var(--brand);cursor:pointer}
   .week-nav span{font-size:13px;font-weight:700;min-width:150px;text-align:center;white-space:nowrap}
@@ -220,14 +217,22 @@
   .day-btns button{flex:1;border:1px solid var(--line);background:#fff;border-radius:11px;padding:9px 4px;font-size:12.5px;font-weight:700;color:var(--muted);cursor:pointer;font-family:inherit;transition:color .2s,background .2s,box-shadow .2s}
   .day-btns button.on{background:linear-gradient(135deg,var(--brand),var(--brand-deep));border-color:var(--brand);color:#fff;box-shadow:0 4px 12px rgba(20,184,166,.28)}
 
-  .mdialog{position:fixed;inset:0;z-index:60;display:none;align-items:center;justify-content:center;padding:20px;background:rgba(18,35,42,.45);-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px)}
-  .mdialog.show{display:flex}
-  .mdialog .box{width:100%;max-width:560px;max-height:86vh;background:#fff;border-radius:20px;box-shadow:0 20px 60px rgba(10,30,40,.28);display:flex;flex-direction:column;overflow:hidden;border:1px solid var(--line)}
+  .mdialog{position:fixed;inset:0;z-index:60;display:flex;align-items:center;justify-content:center;padding:20px;background:rgba(18,35,42,.45);-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px);opacity:0;visibility:hidden;pointer-events:none;transition:opacity .25s ease,visibility .25s}
+  .mdialog.show{opacity:1;visibility:visible;pointer-events:auto}
+  .mdialog .box{width:100%;max-width:560px;max-height:86vh;background:#fff;border-radius:20px;box-shadow:0 20px 60px rgba(10,30,40,.28);display:flex;flex-direction:column;overflow:hidden;border:1px solid var(--line);transform:scale(.94) translateY(14px);opacity:.5;transition:transform .28s cubic-bezier(.2,.9,.3,1),opacity .28s}
+  .mdialog.show .box{transform:none;opacity:1}
   .mdialog .mhead{display:flex;justify-content:space-between;align-items:center;padding:15px 18px;border-bottom:1px solid var(--line)}
   .mdialog .mhead h3{font-size:16px;font-weight:800}
   .mdialog .mbody{flex:1;overflow-y:auto;padding:16px 18px}
   .mdialog .mfoot{display:flex;gap:10px;padding:14px 18px;border-top:1px solid var(--line)}
   .mdialog .mfoot .btn{flex:1;margin:0}
+
+  /* 更新下载进度条 */
+  .dl-wrap{display:none;margin-top:10px}
+  .dl-wrap.show{display:block}
+  .dl-bar{height:10px;border-radius:6px;background:var(--line);overflow:hidden;position:relative}
+  .dl-fill{height:100%;width:0;border-radius:6px;background:linear-gradient(90deg,var(--brand),var(--brand-deep));transition:width .18s ease}
+  .dl-txt{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-top:5px}
 
   .fmt-list{display:flex;flex-direction:column;gap:10px}
   .fmt-item{display:flex;align-items:center;gap:12px;border:1px solid var(--line);border-radius:14px;padding:13px 14px;cursor:pointer;transition:border-color .2s,box-shadow .2s,transform .12s}
@@ -277,6 +282,16 @@
 
   .ver-tag{margin-top:20px;text-align:center;font-size:12.5px;color:var(--muted);cursor:pointer;user-select:none;padding:8px;border-radius:10px;transition:color .2s,background .2s}
   .ver-tag:hover{color:var(--brand-deep);background:var(--brand-soft)}
+
+  /* 页面切换与按钮反馈动效 */
+  .view-anim{animation:viewIn .3s cubic-bezier(.2,.8,.3,1)}
+  @keyframes viewIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+  .seg button,.chart-tabs button,.s-icon,.fmt-item{transition:transform .08s ease,background .2s,color .2s,box-shadow .2s}
+  .seg button:active,.chart-tabs button:active,.s-icon:active,.fmt-item:active{transform:scale(.94)}
+  .fmt-item{cursor:pointer}
+  .day-btns button,.sheet-close,.badge{transition:transform .08s ease,background .2s,color .2s}
+  .day-btns button:active,.sheet-close:active{transform:scale(.94)}
+  .day-card{transition:transform .12s ease,box-shadow .2s}
 </style>
 </head>
 <body>
@@ -296,7 +311,7 @@
   </header>
 
   <!-- 周计划视图 -->
-  <div id="viewPlan">
+  <div id="viewPlan" class="view-anim">
     <div class="week-nav">
       <button id="prevW" aria-label="上一周">‹</button>
       <span id="weekLabel" onclick="openCalendar()" title="点击查看训练活跃日历">8/31 – 9/6</span>
@@ -323,7 +338,7 @@
   </div>
 
   <!-- 数据视图 -->
-  <div id="viewStats" style="display:none">
+  <div id="viewStats" class="view-anim" style="display:none">
     <div class="chart-tabs">
       <button type="button" id="tabBody" class="on" onclick="switchChart('body')">身体数据</button>
       <button type="button" id="tabEx" onclick="switchChart('ex')">动作数值</button>
@@ -351,15 +366,7 @@
   </div>
 
   <!-- 设置视图 -->
-  <div id="viewSettings" style="display:none">
-    <div class="settings-head">
-      <button class="s-icon" onclick="closeSettings()" title="返回" aria-label="返回">
-        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"></path></svg>
-      </button>
-      <h3>设置</h3>
-      <span></span>
-    </div>
-
+  <div id="viewSettings" class="view-anim" style="display:none">
     <div class="card chart-card">
       <h3>计划与记录管理</h3>
       <div class="cap">查看完整训练内容、导出到其他设备，或导入/切换更符合你节奏的计划</div>
@@ -549,20 +556,48 @@ let DAYS = {
 const DAY_ORDER = [1,2,3,4];
 
 /* ---------- 在线更新配置 ---------- */
-const APP_VERSION = '1.2.0';                 // 当前版本，随发版手动递增
+const APP_VERSION = '1.4.0';                 // 当前版本，随发版手动递增
 const UPDATE_REPO = 'AC-kiko/fitness-discipline-tracker'; // 改成你的 owner/repo（不含 https）
 function updateApiUrl(){ return 'https://api.github.com/repos/'+UPDATE_REPO+'/releases/latest'; }
+function fmtBytes(n){ if(!n||n<0) return '--'; if(n<1024) return n+' B'; if(n<1048576) return (n/1024).toFixed(1)+' KB'; return (n/1048576).toFixed(2)+' MB'; }
+function resetDownloadUI(){
+  const w=document.getElementById('dlWrap'), f=document.getElementById('dlFill'),
+        p=document.getElementById('dlPct'), b=document.getElementById('dlBytes');
+  if(w) w.classList.remove('show'); if(f) f.style.width='0%';
+  if(p) p.textContent='0%'; if(b) b.textContent='0 B / --';
+}
+function initDownloadListener(){
+  try{
+    if(!(window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.AutoUpdate && window.Capacitor.Plugins.AutoUpdate.addListener)) return;
+    window.Capacitor.Plugins.AutoUpdate.addListener('downloadProgress', function(data){
+      const p=document.getElementById('dlPct'), f=document.getElementById('dlFill'),
+            b=document.getElementById('dlBytes'), w=document.getElementById('dlWrap');
+      if(!w) return;
+      w.classList.add('show');
+      const pct=(data && typeof data.percent==='number') ? data.percent : -1;
+      if(pct>=0 && f){ const v=Math.min(100,pct); f.style.width=v+'%'; if(p) p.textContent=v+'%'; }
+      else if(p){ p.textContent='下载中…'; f.style.width='0%'; }
+      if(b) b.textContent=fmtBytes(data&&data.received)+' / '+fmtBytes(data&&data.total);
+      if(pct===100 && p) p.textContent='下载完成';
+    });
+  }catch(e){ /* 原生监听不可用时静默降级 */ }
+}
 function cmpVersion(a,b){ const va=String(a).replace(/^v/,'').split('.').map(Number), vb=String(b).replace(/^v/,'').split('.').map(Number); for(let i=0;i<3;i++){ const x=va[i]||0, y=vb[i]||0; if(x!==y) return x-y; } return 0; }
 function refreshVersionTag(){ const el=document.getElementById('appVersion'); if(el) el.innerHTML='v'+APP_VERSION; }
+function showMsg(title,text){
+  document.getElementById('msgTitle').textContent=title;
+  document.getElementById('msgText').textContent=text;
+  openDialog('msgModel');
+}
 function checkUpdate(manual){
   if(!UPDATE_REPO || UPDATE_REPO.indexOf('/')<0) return;
   fetch(updateApiUrl(), {headers:{Accept:'application/vnd.github+json'}})
     .then(r=> r.ok? r.json() : null)
     .then(data=>{
       if(manual) refreshVersionTag();
-      if(!data || !data.tag_name){ if(manual) alert('检查更新失败：无法获取最新版本信息'); return; }
+      if(!data || !data.tag_name){ if(manual) showMsg('检查更新失败','无法获取最新版本信息'); return; }
       const tag=String(data.tag_name).replace(/^v/,'');
-      if(cmpVersion(tag, APP_VERSION) <= 0){ if(manual) alert('已是最新版本 v'+APP_VERSION); return; }
+      if(cmpVersion(tag, APP_VERSION) <= 0){ if(manual) showMsg('已是最新版本','当前已安装 v'+APP_VERSION); return; }
       let apk=''; let asset=data.assets && data.assets.find(a=>/\.apk$/i.test(a.name));
       if(asset) apk=asset.browser_download_url;
       document.getElementById('updCur').textContent='当前 v'+APP_VERSION;
@@ -579,8 +614,9 @@ function checkUpdate(manual){
         const isNative = !!(window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform());
         const st=document.getElementById('updStatus');
         if(isNative && window.Capacitor.Plugins && window.Capacitor.Plugins.AutoUpdate){
+          resetDownloadUI();
           dl.textContent='正在下载更新…';
-          st.textContent='下载完成后将自动唤起系统安装界面…';
+          st.textContent='正在下载，请稍候…';
           window.Capacitor.Plugins.AutoUpdate.installApk({url:apk}).then(()=>{
             dl.textContent='安装界面已打开';
             st.textContent='请在系统弹窗中点击「安装」完成更新';
@@ -595,7 +631,7 @@ function checkUpdate(manual){
         }
       };
       openDialog('updModel');
-    }).catch(()=>{ if(manual){ refreshVersionTag(); alert('检查更新失败：网络或服务不可用'); } });
+    }).catch(()=>{ if(manual){ refreshVersionTag(); showMsg('检查更新失败','网络或服务不可用'); } });
 }
 function manualCheckUpdate(){
   const el=document.getElementById('appVersion');
@@ -604,6 +640,7 @@ function manualCheckUpdate(){
 }
 checkUpdate();
 refreshVersionTag();
+initDownloadListener();
 
 /* 顺序解锁 */
 function dayDone(items){ return items.length>0 && items.every(i=> i.done); }
@@ -755,7 +792,7 @@ function importPlan(inp){
       document.getElementById('importName').value = '自定义计划 '+(planNames().length+1);
       document.getElementById('importPreview').innerHTML = buildPlanFragment(p);
       openDialog('importModel');
-    }catch(e){ alert('导入失败：文件不是有效的训练计划 JSON'); }
+    }catch(e){ showMsg('导入失败','文件不是有效的训练计划 JSON'); }
   };
   r.readAsText(f);
   inp.value='';
@@ -767,7 +804,7 @@ function confirmImport(){
   plans[base]=pendingImport; savePlans(plans); setActivePlan(base);
   DAYS=pendingImport; pendingImport=null;
   closeDialog('importModel'); closeDetail(); render(); fillDayBtns(); refreshPlanNames();
-  alert('已导入并启用「'+base+'」');
+  showMsg('导入成功','已导入并启用「'+base+'」');
 }
 
 /* 切换训练计划 */
@@ -788,7 +825,7 @@ function openSwitchPlan(){
   openDialog('switchModel');
 }
 function switchTo(i){ const n=plNames[i]; if(!n) return; setActivePlan(n); DAYS=loadPlans()[n]||DAYS; closeDialog('switchModel'); render(); fillDayBtns(); }
-function delPlan(i){ const n=plNames[i]; if(!n) return; if(planNames().length<=1){ alert('至少保留一个训练计划'); return; }
+function delPlan(i){ const n=plNames[i]; if(!n) return; if(planNames().length<=1){ showMsg('提示','至少保留一个训练计划'); return; }
   const cur=activePlanName(); const plans=loadPlans(); delete plans[n]; savePlans(plans);
   if(cur===n){ const n2=planNames()[0]; setActivePlan(n2); DAYS=loadPlans()[n2]||DAYS; }
   render(); openSwitchPlan();
@@ -890,7 +927,7 @@ function updateMeta(data){
 /* ---------- 抽屉（最简化，点开才展开） ---------- */
 let activeDay=null;
 function openDetail(n){
-  if(!unlocked(n)){ alert(lockMsg(n)); return; }
+  if(!unlocked(n)){ showMsg('未解锁', lockMsg(n)); return; }
   activeDay=n;
   const {data}=loadWeek();
   const d=DAYS[n];
@@ -937,23 +974,18 @@ function skipAction(i){ patch(i,r=>{ r.val='0'; r.skip=true; r.done=true; }); op
 function skipDay(){ const n=activeDay; const {key,data}=loadWeek(); data[n].items.forEach(r=>{ r.val='0'; r.skip=true; r.done=true; }); localStorage.setItem(key, JSON.stringify(data)); closeDetail(); }
 
 /* ---------- 视图切换 ---------- */
-let lastMainView='plan', chartTab='body';
+let chartTab='body';
 function switchView(v){
   document.getElementById('viewPlan').style.display = v==='plan'?'':'none';
   document.getElementById('viewStats').style.display = v==='stats'?'':'none';
   document.getElementById('viewSettings').style.display = v==='settings'?'':'none';
   document.getElementById('viewPlanBtn').classList.toggle('on', v==='plan');
   document.getElementById('viewStatsBtn').classList.toggle('on', v==='stats');
-  if(v==='plan'||v==='stats') lastMainView=v;
   if(v==='stats'){
     if(chartTab==='ex'){ fillDayBtns(); drawExChart(); } else drawBodyChart();
   }
 }
-function openSettings(){
-  lastMainView = document.getElementById('viewStats').style.display==='' ? 'stats':'plan';
-  switchView('settings');
-}
-function closeSettings(){ switchView(lastMainView); }
+function openSettings(){ switchView('settings'); }
 function switchChart(t){
   chartTab=t;
   document.getElementById('tabBody').classList.toggle('on', t==='body');
@@ -1107,7 +1139,7 @@ function dayForWeekday(wd){
 function openCalendar(){
   const weeks=collectWeeks();
   const stamps=weeks.map(w=>w.stamp).sort();
-  if(!stamps.length){ alert('暂无训练数据'); return; }
+  if(!stamps.length){ showMsg('提示','暂无训练数据'); return; }
   const first=stamps[0], last=stamps[stamps.length-1];
   document.getElementById('calRange').innerHTML = '共 <b>'+weeks.length+'</b> 周训练　'+ (+first.slice(4,6))+'/'+ (+first.slice(6,8))+' – '+(+last.slice(4,6))+'/'+ (+last.slice(6,8));
 
@@ -1242,12 +1274,24 @@ initMetricBtns();
         <span id="updNote" style="color:var(--muted)"></span>
       </div>
       <p style="font-size:12px;color:var(--muted);margin-top:6px">下载完成后自动唤起系统安装界面，你的训练与身体数据会保留在设备本地。</p>
+      <div class="dl-wrap" id="dlWrap">
+        <div class="dl-bar"><div class="dl-fill" id="dlFill"></div></div>
+        <div class="dl-txt"><span id="dlPct">0%</span><span id="dlBytes">0 B / --</span></div>
+      </div>
       <p id="updStatus" style="font-size:12px;color:var(--brand-deep);margin-top:6px;min-height:18px"></p>
     </div>
     <div class="mfoot">
       <button class="btn ghost" onclick="closeDialog('updModel')">稍后再说</button>
       <button class="btn" id="updDl">下载并安装</button>
     </div>
+  </div>
+</div>
+
+<div class="mdialog" id="msgModel">
+  <div class="box">
+    <div class="mhead"><h3 id="msgTitle">提示</h3><button class="sheet-close" onclick="closeDialog('msgModel')">✕</button></div>
+    <div class="mbody"><p id="msgText" style="font-size:14px;line-height:1.7;color:var(--ink)"></p></div>
+    <div class="mfoot"><button class="btn" onclick="closeDialog('msgModel')">知道了</button></div>
   </div>
 </div>
 
