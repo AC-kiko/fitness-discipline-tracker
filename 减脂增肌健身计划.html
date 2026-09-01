@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>健身房4天版 · 减脂 + 少量增肌计划</title>
+<style>
+  :root{
+    --bg:#f5f7fa; --card:#ffffff; --ink:#1f2937; --muted:#6b7280;
+    --brand:#2563eb; --brand-soft:#dbeafe; --green:#16a34a; --green-soft:#dcfce7;
+    --amber:#d97706; --amber-soft:#fef3c7; --red:#dc2626; --red-soft:#fee2e2;
+    --line:#e5e7eb;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:"PingFang SC","Microsoft YaHei",system-ui,sans-serif;background:var(--bg);color:var(--ink);line-height:1.7}
+  .wrap{max-width:880px;margin:0 auto;padding:32px 20px 64px}
+  header.hero{background:linear-gradient(135deg,#1e3a8a,#2563eb 60%,#3b82f6);color:#fff;border-radius:20px;padding:32px;margin-bottom:26px}
+  header.hero h1{font-size:25px;font-weight:800;margin-bottom:8px}
+  header.hero p{font-size:14px;opacity:.92}
+  .tag{display:inline-block;background:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.35);padding:2px 12px;border-radius:999px;font-size:12px;margin:0 6px 6px 0}
+  h2{font-size:20px;font-weight:800;margin:32px 0 14px;padding-left:12px;border-left:4px solid var(--brand);display:flex;align-items:center;gap:8px}
+  h2 .num{background:var(--brand);color:#fff;width:26px;height:26px;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;font-size:14px;flex:0 0 auto}
+  h3{font-size:16px;font-weight:700;margin:18px 0 8px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px 22px;margin-bottom:18px;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+  .callout{border-radius:12px;padding:14px 16px;margin:14px 0;font-size:14px}
+  .callout.blue{background:var(--brand-soft);border-left:4px solid var(--brand)}
+  .callout.green{background:var(--green-soft);border-left:4px solid var(--green)}
+  .callout.amber{background:var(--amber-soft);border-left:4px solid var(--amber)}
+  .callout.red{background:var(--red-soft);border-left:4px solid var(--red)}
+  .callout b{font-weight:700}
+  table{width:100%;border-collapse:collapse;margin:8px 0;font-size:13.5px}
+  th,td{border:1px solid var(--line);padding:8px 10px;text-align:left;vertical-align:top}
+  th{background:#f3f4f6;font-weight:700}
+  tr:nth-child(even) td{background:#fafbfc}
+  .eq{color:#7c3aed;font-weight:600;white-space:nowrap}
+  .pill{display:inline-block;padding:1px 10px;border-radius:999px;font-size:12px;font-weight:600}
+  .pill.g{background:var(--green-soft);color:var(--green)}
+  .pill.a{background:var(--amber-soft);color:var(--amber)}
+  .pill.r{background:var(--red-soft);color:var(--red)}
+  .pill.b{background:var(--brand-soft);color:var(--brand)}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  @media(max-width:640px){.grid2{grid-template-columns:1fr}}
+  .formula{background:#0f172a;color:#7dd3fc;border-radius:10px;padding:14px 16px;font-family:Consolas,Monaco,monospace;font-size:13px;line-height:1.8;margin:10px 0}
+  ul{margin:6px 0 6px 20px}
+  li{margin:5px 0}
+  .phase{background:#f8fafc;border:1px solid var(--line);border-radius:12px;padding:16px 18px;margin:14px 0}
+  .phase .pt{font-weight:800;font-size:15px;color:var(--brand);margin-bottom:6px}
+  .kpi{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px;margin:14px 0}
+  .kpi div{background:#f8fafc;border:1px solid var(--line);border-radius:12px;padding:12px;text-align:center}
+  .kpi .v{font-size:19px;font-weight:800;color:var(--brand)}
+  .kpi .l{font-size:12px;color:var(--muted)}
+  footer{text-align:center;font-size:12px;color:var(--muted);margin-top:36px}
+  .src{font-size:12px;color:var(--muted);margin-top:4px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="hero">
+  <span class="tag">健身房</span><span class="tag">每周 4 天</span><span class="tag">单次可较长</span><span class="tag">饮食稍严格</span>
+  <h1>健身房 4 天版 · 减脂 + 少量增肌计划</h1>
+  <p>根据你的条件定制：器械明确到每项 · 阶段切换标准清晰 · 饮食不过度牺牲</p>
+</header>
+
+<!-- ============ 1 定制说明 ============ -->
+<h2><span class="num">1</span>你的定制方案：4 天一练的设计逻辑</h2>
+<div class="card">
+  <div class="callout blue"><b>4 天怎么排最科学？</b>力量分裂为 <b>下肢 / 背拉 / 臀腿髋 / 全身代谢</b>，每天 60–75 分钟。长时长正好支撑「力量训练打底 ＋ 每天收尾做有氧」，一举两得——不额外占用你有限的锻炼天。</div>
+  <div class="kpi">
+    <div><div class="v">3 天</div><div class="l">力量训练（保住/增肌肉）</div></div>
+    <div><div class="v">1 天</div><div class="l">全身代谢/心肺</div></div>
+    <div><div class="v">每次 ≤15min</div><div class="l">力量后嵌入式有氧</div></div>
+    <div><div class="v">8000–10000</div><div class="l">每天步数（不占锻炼日程）</div></div>
+  </div>
+  <p style="font-size:14px">为什么这样排：研究表明减重中<b>力量训练是保留肌肉最有效方式</b>，有氧则更高效降低总/内脏脂肪——两者缺一不可。4 天里 3 天力量 + 1 天心肺，正好同时服务「瘦 + 留住肌肉」。</p>
+  <div class="callout green"><b>关于"会不会练成肌肉大汉"——不会，这是最常见的新手误区。</b>要练成大块肌肉必须同时满足三件事：<b>热量盈余（吃得比消耗多）＋ 长期大训练量 ＋ 高蛋白</b>。而你目前是<b>减脂 = 热量缺口</b>，脂肪在消耗、肌肉几乎不增长——此时练力量的作用是<b>保留并紧实现有肌肉</b>，让瘦下来的腿/肚/臀<b>有线条而不松垮</b>，绝不是"增粗"。</div>
+  <div class="callout amber"><b>塑形瘦身优先的微调（针对你的首要目的）：</b>本计划力量组次数本就以 <b>10–15 次的中等"肌耐力/紧致"区间</b>为主（非 4–6 次的增粗大重量区间），配合大量低强度有氧和步数。只要稳稳维持热量缺口，肌肉只会"紧实有型"，不会膨胀成"大汉"。</div>
+</div>
+
+<!-- ============ 2 周计划 ============ -->
+<h2><span class="num">2</span>一周训练安排（含每项器械）</h2>
+<div class="card">
+  <table>
+    <tr><th>时间</th><th>内容</th><th>时长</th><th>主题</th></tr>
+    <tr><td>周一</td><td>下肢推 + 胸推 + 核心</td><td>60–70min</td><td>Day1 · 蹲/推</td></tr>
+    <tr><td>周二</td><td>背拉 + 核心 + 有氧</td><td>60–70min</td><td>Day2 · 拉</td></tr>
+    <tr><td>周三</td><td>休息 / 散步</td><td>—</td><td>恢复</td></tr>
+    <tr><td>周四</td><td>臀腿髋 + 核心</td><td>60–70min</td><td>Day3 · 髋/臀</td></tr>
+    <tr><td>周五</td><td>全身代谢（心肺/HIIT）+ 核心</td><td>50–60min</td><td>Day4 · 燃脂</td></tr>
+    <tr><td>周六</td><td>休息 / 低强度活动</td><td>—</td><td>恢复（可散步）</td></tr>
+    <tr><td>周日</td><td>完全休息</td><td>—</td><td>必休息</td></tr>
+  </table>
+  <p style="font-size:13px;color:var(--muted)">策略：把「每周 4 天」用在刀刃上——3 天重力量，1 天专注心肺代谢。如果你某周状态差，可把 Day4 换成纯有氧散步。</p>
+</div>
+
+<div class="card">
+  <h3>Day 1（周一）下肢推 + 胸推 + 核心</h3>
+  <table>
+    <tr><th>动作</th><th>器械</th><th>组×次</th><th>要点</th></tr>
+    <tr><td>杠铃深蹲（或腿举机）</td><td class="eq">深蹲架/杠铃 或 腿举机</td><td>3×8–12</td><td>下肢主菜，先空杠学动作</td></tr>
+    <tr><td>哑铃卧推（平躺/上斜）</td><td class="eq">哑铃凳+哑铃</td><td>3×8–12</td><td>胸+三头</td></tr>
+    <tr><td>哑铃坐姿肩上推举</td><td class="eq">哑铃+凳</td><td>3×8–12</td><td>肩</td></tr>
+    <tr><td>哑铃侧平举</td><td class="eq">哑铃</td><td>3×12–15</td><td>肩部窄头</td></tr>
+    <tr><td>绳索下压（或双杠臂屈伸）</td><td class="eq">龙门架绳索 或 臂屈伸架</td><td>3×10–15</td><td>三头</td></tr>
+    <tr><td>绳索卷腹</td><td class="eq">龙门架+绳索</td><td>3×12–15</td><td>核心</td></tr>
+    <tr><td>收尾有氧：快走 12–15min 或单车 10min</td><td class="eq">跑步机/动感单车</td><td>1×</td><td>中低强度</td></tr>
+    <tr><td colspan="4" style="background:var(--amber-soft);color:#92400e"><b>若有余时（超 75min）：</b>先把收尾有氧延长到 30–40min；状态好再加臀腿孤立（臀推/弓步蹲 +1–2 组）与泡沫轴拉伸。别加多组大重量深蹲/卧推。</td></tr>
+  </table>
+</div>
+
+<div class="card">
+  <h3>Day 2（周二）背拉 + 后侧链 + 核心</h3>
+  <table>
+    <tr><th>动作</th><th>器械</th><th>组×次</th><th>要点</th></tr>
+    <tr><td>高位下拉</td><td class="eq">高拉机</td><td>3×8–12</td><td>背部宽度</td></tr>
+    <tr><td>坐姿划船</td><td class="eq">坐姿划船机 / 龙门架</td><td>3×10–12</td><td>背部厚度</td></tr>
+    <tr><td>杠铃/哑铃划船</td><td class="eq">杠铃 或 哑铃+凳</td><td>3×10–12</td><td>背阔肌</td></tr>
+    <tr><td>绳索面拉</td><td class="eq">龙门架+绳索</td><td>3×12–15</td><td>后肩/上背</td></tr>
+    <tr><td>杠铃罗马尼亚硬拉</td><td class="eq">杠铃+杠铃片</td><td>3×8–10</td><td>腘绳+臀+下背</td></tr>
+    <tr><td>悬垂举腿</td><td class="eq">引体架</td><td>3×8–12</td><td>下腹</td></tr>
+    <tr><td>收尾有氧：动感单车 15min</td><td class="eq">动感单车</td><td>1×</td><td>中低强度</td></tr>
+    <tr><td colspan="4" style="background:var(--amber-soft);color:#92400e"><b>若有余时（超 75min）：</b>先把收尾有氧延长到 25–35min；加俯身腿弯举/提踵 +1–2 组，做背阔肌放松拉伸。别再加多组硬拉。</td></tr>
+  </table>
+</div>
+
+<div class="card">
+  <h3>Day 3（周四）臀腿髋 / 瘦腿瘦臀专属 + 核心</h3>
+  <table>
+    <tr><th>动作</th><th>器械</th><th>组×次</th><th>要点</th></tr>
+    <tr><td>杠铃臀推（或深蹲机髋推）</td><td class="eq">杠铃+凳/垫 或 臀推机</td><td>3×8–12</td><td>臀部紧致关键动作</td></tr>
+    <tr><td>罗马尼亚硬拉 / 俯身腿弯举</td><td class="eq">杠铃 或 腿弯举机</td><td>3×10–12</td><td>大腿后侧</td></tr>
+    <tr><td>哑铃弓步蹲（行走式）</td><td class="eq">哑铃</td><td>3×8–10/腿</td><td>臀+大腿塑形</td></tr>
+    <tr><td>腿举机（低位脚尖）</td><td class="eq">腿举机</td><td>3×10–12</td><td>强壮臀腿</td></tr>
+    <tr><td>站姿提踵</td><td class="eq">提踵机 或 哑铃</td><td>3×15</td><td>小腿塑形</td></tr>
+    <tr><td>平板支撑 + 鸟狗式</td><td class="eq">自重（瑜伽垫）</td><td>3×30–45s / 3×8</td><td>核心稳定</td></tr>
+    <tr><td>收尾有氧：上坡走 15min</td><td class="eq">跑步机</td><td>1×</td><td>中低强度</td></tr>
+    <tr><td colspan="4" style="background:var(--amber-soft);color:#92400e"><b>若有余时（超 75min）：</b>先把收尾上坡走延长到 25–40min（效果极佳）；加臀推/弓步蹲 +1–2 组、提踵 +1 组，泡沫轴放松臀腿。别加更多硬拉重量。</td></tr>
+  </table>
+</div>
+
+<div class="card">
+  <h3>Day 4（周五）全身代谢燃脂 + 核心</h3>
+  <table>
+    <tr><th>动作</th><th>器械</th><th>组/次</th><th>要点</th></tr>
+    <tr><td>壶铃摆动（Kettlebell Swings）</td><td class="eq">壶铃</td><td>4×15</td><td>全身爆发</td></tr>
+    <tr><td>药球砸地</td><td class="eq">药球</td><td>3×10/侧</td><td>核心+爆发</td></tr>
+    <tr><td>器械蹲/农夫行走交替</td><td class="eq">哑铃</td><td>3×</td><td>复合代谢</td></tr>
+    <tr><td>动感单车冲刺 HIIT</td><td class="eq">动感单车/跑步机</td><td>6×30s全力+90s轻松</td><td>心肺燃脂主力</td></tr>
+    <tr><td>平板支撑 + 死虫式</td><td class="eq">自重（瑜伽垫）</td><td>3×40s/侧</td><td>核心收尾</td></tr>
+    <tr><td colspan="4" style="background:var(--amber-soft);color:#92400e"><b>若有余时（超 75min）：</b>这是燃脂日，<b>别拉长冲刺 HIIT</b>（心肺过载易伤）。改为延长低强度收尾：上坡走/单车 15–20min + 全身泡沫轴放松拉伸。</td></tr>
+  </table>
+  <div class="callout amber"><b>Day4 说明：</b>强度较高但时长最短（50–60min）。若心肺基础弱，先改用「中低强度有氧 25–30min」几周再上 HIIT。</div>
+</div>
+
+<!-- ============ 3 器械清单 ============ -->
+<h2><span class="num">3</span>你会用到的器械 · 一次性清单</h2>
+<div class="card">
+  <h3>健身房必备器材（基本都有）</h3>
+  <table>
+    <tr><th>用途</th><th>器械</th></tr>
+    <tr><td>下肢力量</td><td class="eq">深蹲架/杠铃 + 杠铃片、腿举机、腿弯举机</td></tr>
+    <tr><td>上肢力量</td><td class="eq">哑铃、哑铃凳（平/上斜）、高位下拉机、坐姿划船机、龙门架（绳索）</td></tr>
+    <tr><td>臀腿塑形</td><td class="eq">臀推机 或 深蹲凳、提踵机</td></tr>
+    <tr><td>代谢/心肺</td><td class="eq">跑步机（上坡走）、动感单车、壶铃、药球</td></tr>
+    <tr><td>核心</td><td class="eq">瑜伽垫、引体架（悬垂）、龙门架（绳索卷腹）</td></tr>
+  </table>
+  <p style="font-size:13px;color:var(--muted)">新手建议：第一周直接从「徒手/空杠/最轻片」开始熟悉每个动作，确保动作标准再上重量。</p>
+</div>
+
+<!-- ============ 4 阶段切换 ============ -->
+<h2><span class="num">4</span>什么时候切换到下一阶段？（明确标准）</h2>
+<div class="card">
+  <div class="phase">
+    <div class="pt">第一阶段：动作打基础（约第 1–4 周）</div>
+    <b>做什么：</b>固定用计划的组数与次数，用轻重量专注动作标准和习惯养成；有氧中低强度。<br>
+    <b>切换条件（满足其一即进第二阶段）：</b>
+    <ul>
+      <li>所有核心动作的<b>组数 × 次数连续 2 次训练都完整做完</b>，且动作不变形、不用惯性借力；<b>或</b></li>
+      <li>顺利坚持满 4 周，且每次训练后 1–2 天内能完全恢复。</li>
+    </ul>
+  </div>
+  <div class="phase">
+    <div class="pt">第二阶段：渐进超负荷 · 主力增肌减脂（约第 5–12 周）</div>
+    <b>做什么：</b>开始「加一点点」——当你能轻松完成某动作目标次数的上限（如做到 12 次且还能多 1–2 次），就<u>下肢 +约2.5kg、上肢 +约1.25–5kg</u>（或总重量 2–10%）。每次记录动作/重量/次数。有氧逐步升级（可加入短 HIIT）。<br>
+    <b>切换/评估条件：</b>完成 12 周，或某大项（深蹲/卧推/硬拉）已能用约 <b>体重的 0.5 倍</b>做 8 次，且训练痛感/瓶颈明显——此时说明力量+减脂基线已建立。<br>
+    <div class="callout blue"><b>第 12 周粒度调优：</b>如果减脂进展理想（周均 0.4–1kg）但线条还想更精，可进入第三阶段继续分化；如果体重/围度停滞，先查饮食缺口的执行，再谈换计划。</div>
+  </div>
+  <div class="phase">
+    <div class="pt">第三阶段：进阶分化（第 13 周起）</div>
+    <b>做什么：</b>拆分更细（如上/下肢各练 2 天）+ 更多孤立/塑形动作 + 有氧/ HIIT 频率提升；可引入更多种类的臀腿和腹肌训练。<br>
+    <b>何时进入：</b>第二阶段标准达成、且你已能把计划养成习惯不需要看表——通常在第 13 周左右依据实际达成评估。</div>
+  </div>
+  <div class="callout green"><b>通用铁律：切换只看「能否标准完成目标次数」和「是否恢复良好」，不看「是否练得累」。</b>每次能轻松多完成 1–2 次 → 就加重量。这才是唯一的进步信号。</div>
+</div>
+
+<!-- ============ 4.5 组·次·重量随身卡片 ============ -->
+<h2><span class="num">4.5</span>随身卡片：怎么懂"组×次"，每次拉多重？</h2>
+<div class="card">
+  <h3>① "组 × 次"怎么读</h3>
+  <ul>
+    <li><b>组数 × 每组次数</b>：`3×8–12`＝做 3 组，每组 8–12 次；组间休息约 1–2 分钟（复合动作 2–3 分钟）。</li>
+    <li>`3×8–10/腿`＝每侧腿各做 8–10 次算 1 组；`3×40s`＝每组坚持 40 秒；`1×`＝做 1 组到时长。</li>
+  </ul>
+  <h3>② 每次拉多重？由"次数目标"反推</h3>
+  <ul>
+    <li>选一个重量，让你<b>在做到第 8–12 次时刚好接近做不动、留 2–3 次余量</b>——就是你的理想重量。</li>
+    <li>太重（第 5 次就力竭）→ 减重；太轻（轻松做 15 次）→ 加重。</li>
+  </ul>
+  <h3>③ 前 2 周怎么定（三步）</h3>
+  <table>
+    <tr><th>步骤</th><th>做法</th></tr>
+    <tr><td>1. 轻起步</td><td>前 1–2 组拿轻重量/空杠/自重，先练动作标准，不追求重量</td></tr>
+    <tr><td>2. 逐档试探</td><td>往上加，直到"能做目标次数、最后 1–2 个很吃力、还能多撑几下但没法再多一大截"</td></tr>
+    <tr><td>3. 记住并记录</td><td>记下这个重量（备忘录/计划表），下次照此练习</td></tr>
+  </table>
+  <h3>④ 什么时候加重（渐进超负荷）</h3>
+  <ul>
+    <li>当你能<b>轻轻松松把目标次数的上限做完</b>（如 8–12 次里做到 12 次还很轻松、能多 1–2 下），下次就加：<b>下肢 +约2.5kg、上肢 +约1.25–5kg</b>（或总重 5–10%）。</li>
+    <li>加完后应回到"第 10 次左右又开始吃力"——说明量对了。若加完连 8 次都做不了，就退回上一档多练几周。</li>
+  </ul>
+  <div class="callout amber"><b>避坑：</b>① 别一上来就太重硬逞能（易伤、变形）；② 别总练同一个很轻的重量不进步（等于白练）。<br>一句话：<b>重到"练完一组勉强达标、还留 2 次余量"；轻松超标才小幅加重。</b></div>
+</div>
+
+<!-- ============ 5 饮食（稍严格但不过度牺牲） ============ -->
+<h2><span class="num">5</span>饮食：稍严格、但不过度牺牲</h2>
+<div class="card">
+  <div class="callout red"><b>先说实话：</b>减脂本质需要热量缺口，这一点避免不了——但有「聪明而轻松」的略严格做法，不必痛苦节食：<b>温和缺口 ~500 kcal/天</b>（约 0.5kg/周），蛋白质给足，主食和爱吃的保留。</div>
+  <h3>你的热量目标公式（代入即得）</h3>
+  <div class="formula">
+    基础代谢 BMR = 10×体重kg + 6.25×身高cm − 5×年龄 + 5<br>
+    每日消耗 TDEE = BMR × 活动系数（你 4 天运动：取 1.375–1.55）<br>
+    减脂摄入 ≈ <b>TDEE − 500</b><br>
+    蛋白质 = <b>1.6–2.0 g/kg</b> 体重/天（保+增肌肉的最关键杠杆）
+  </div>
+  <h3>稍严格怎么落地（不做极端的事）</h3>
+  <table>
+    <tr><th>版块</th><th>怎么做</th><th>尺度</th></tr>
+    <tr><td>主食</td><td>保留碳水（训练需要它），优先燕麦/糙米/红薯/全麦</td><td>每餐一拳大小，不戒断</td></tr>
+    <tr><td>蛋白质</td><td>每餐一个手掌大的肉/鱼/蛋/豆 + 训练后乳清或酸奶</td><td>吃到 1.6–2.0g/kg</td></tr>
+    <tr><td>蔬菜</td><td>每餐半盘，随便多吃</td><td>填充饱腹感</td></tr>
+    <tr><td>油脂</td><td>橄榄油/坚果/牛油果，正常调味</td><td>≥总热量 20%，别太低</td></tr>
+    <tr><td>饮料&酒</td><td>无糖饮；酒尽量减（酒精直接增内脏脂肪）</td><td>含糖饮料和酒是重点砍项</td></tr>
+  </table>
+  <div class="callout green"><b>1 招轻松「稍严格」：</b>只把「含糖饮料、甜点、夜宵零食、酒」这 4 类热量泡沫砍掉，主食和正餐照常——通常光这一点就有 300–500 kcal 缺口，几乎不牺牲生活。</div>
+</div>
+
+<!-- ============ 6 监控与避坑 ============ -->
+<h2><span class="num">6</span>怎么监测 + 避坑</h2>
+<div class="card">
+  <h3>监控（别被体重骗）</h3>
+  <ul>
+    <li>每周固定（周一早晨空腹）称 1–2 次，看 <b>2–4 周平均趋势</b>，不看单天。</li>
+    <li>同时量 <b>腰围、臀围、大腿围</b> + 记录力量表现、精力——体脂降、肌肉增时体重可能平稳但围度变好。</li>
+    <li>体重水份波动（盐、碳水、训练后）正常，别焦虑。</li>
+  </ul>
+  <h3>新手避坑速查</h3>
+  <ul>
+    <li>别只做仰卧起坐想瘦肚子——练不到腹部脂肪，要全身训练+减脂。</li>
+    <li>别只做有氧不练力量——会掉肌肉、代谢下降。</li>
+    <li>别极端节食/断碳——会掉肌肉、反弹、没劲练。</li>
+    <li>别上来就上大重量——先学动作质量，阶段切换标准就在上面。</li>
+  </ul>
+</div>
+
+<footer>
+  依据 WHO、ACSM、NHS/CDC 与 2021–2025 年系统综述编制 · 非医疗处方，有慢性病/关节问题请先咨询专业医生或教练
+</footer>
+</div>
+</body>
+</html>

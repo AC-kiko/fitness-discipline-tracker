@@ -1,0 +1,31 @@
+# ---- Node / Capacitor ----
+node_modules/
+npm-debug.log*
+
+# ---- 构建缓存（体积巨大，勿入库）----
+*.npm-cache/
+.gradle-home/
+.android-sdk/
+.electron-cache/
+.tmp/
+
+# ---- Android 构建产物 ----
+健身打卡App-desktop/android/.gradle/
+健身打卡App-desktop/android/build/
+健身打卡App-desktop/android/app/build/
+健身打卡App-desktop/android/capacitor-android/build/
+健身打卡App-desktop/android/capacitor-cordova-android-plugins/build/
+健身打卡App-desktop/android/local.properties
+健身打卡App-desktop/android/.idea/
+健身打卡App-desktop/**/build/
+
+# ---- 平台/环境相关 ----
+.trae/
+.trae-html-share-packages/
+*.apk
+package.json
+package-lock.json
+
+# ---- 系统/编辑器 ----
+.DS_Store
+Thumbs.db

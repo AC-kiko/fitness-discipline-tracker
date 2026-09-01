@@ -1,0 +1,1167 @@
+<!doctype html>
+<html lang="zh-CN"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>我的健身打卡</title>
+<style>
+  :root{
+    --bg:#f4f6f9; --card:#fff; --ink:#1f2937; --muted:#6b7280; --line:#e5e7eb;
+    --brand:#2563eb; --brand-soft:#e8f0fe; --green:#16a34a; --green-soft:#e7f6ec;
+    --amber:#d97706; --amber-soft:#fdf1e0; --red:#dc2626; --red-soft:#fdeaea;
+    --radius:14px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  html,body{height:100%}
+  body{font-family:"PingFang SC","Microsoft YaHei",system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--ink);line-height:1.6}
+  .app{max-width:560px;margin:0 auto;padding:16px 16px 40px}
+
+  header.top{display:flex;align-items:center;justify-content:space-between;padding:6px 2px 12px}
+  header.top .t h1{font-size:20px;font-weight:800}
+  header.top .t .sub{font-size:12px;color:var(--muted)}
+  .seg{display:flex;background:#e6e9ef;border-radius:11px;padding:3px}
+  .seg button{border:none;background:transparent;border-radius:9px;padding:7px 13px;font-size:13px;font-weight:700;color:var(--muted);cursor:pointer}
+  .seg button.on{background:#fff;color:var(--brand);box-shadow:0 1px 2px rgba(0,0,0,.08)}
+
+  .week-nav{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:14px}
+  .week-nav button{background:#fff;border:1px solid var(--line);border-radius:10px;width:34px;height:34px;font-size:18px;color:var(--brand);cursor:pointer}
+  .week-nav span{font-size:13px;font-weight:700;min-width:150px;text-align:center;white-space:nowrap}
+
+  .today-banner{background:linear-gradient(135deg,#1e3a8a,#2563eb);color:#fff;border-radius:var(--radius);padding:16px 18px;margin-bottom:14px}
+  .today-banner .k{font-size:12px;opacity:.85}
+  .today-banner .v{font-size:19px;font-weight:800;margin:2px 0 8px}
+  .today-banner .bar{height:8px;background:rgba(255,255,255,.25);border-radius:6px;overflow:hidden}
+  .today-banner .bar > div{height:100%;background:#fff;border-radius:6px;transition:width .3s}
+  .today-banner .prog{font-size:12px;margin-top:6px;opacity:.95}
+
+  .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:14px 16px;margin-bottom:14px;box-shadow:0 1px 2px rgba(0,0,0,.04)}
+  .badge{font-size:11px;font-weight:700;padding:2px 9px;border-radius:999px}
+  .badge.today{background:var(--brand);color:#fff}
+  .badge.done{background:var(--green-soft);color:var(--green)}
+  .badge.part{background:var(--amber-soft);color:var(--amber)}
+  .badge.wait{background:#eef0f4;color:var(--muted)}
+
+  .day-card{cursor:pointer;transition:transform .05s}
+  .day-card:active{transform:scale(.985)}
+  .day-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}
+  .day-head .l{font-weight:800;font-size:15px}
+  .day-title{font-size:12px;color:var(--muted);margin-bottom:10px}
+  .mini-bar{height:6px;background:#eef0f4;border-radius:5px;overflow:hidden}
+  .mini-bar > div{height:100%;background:var(--green);border-radius:5px;transition:width .3s}
+  .mini-label{font-size:12px;color:var(--muted);margin-top:6px}
+
+  /* 抽屉 */
+  .overlay{position:fixed;inset:0;background:rgba(15,23,42,.5);display:none;z-index:20}
+  .overlay.show{display:block}
+  .sheet{position:fixed;left:0;right:0;bottom:0;max-width:560px;margin:0 auto;height:90vh;background:#fff;border-radius:18px 18px 0 0;z-index:30;transform:translateY(100%);transition:transform .28s cubic-bezier(.2,.9,.3,1);overflow:hidden;display:flex;flex-direction:column}
+  .sheet.show{transform:translateY(0)}
+  .sheet-head{padding:14px 16px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between}
+  .sheet-head .t{font-weight:800;font-size:16px}
+  .sheet-close{width:32px;height:32px;border-radius:10px;border:1px solid var(--line);background:#fff;font-size:16px;color:var(--muted);cursor:pointer}
+  .sheet-body{flex:1;overflow-y:auto;padding:14px 16px 24px}
+
+  .item{background:#fbfcfd;border:1px solid var(--line);border-radius:12px;padding:11px 12px;margin-bottom:9px;cursor:pointer}
+  .item .row1{display:flex;align-items:center;gap:10px}
+  .item .info{flex:1;min-width:0}
+  .item .nm{font-weight:700;font-size:14px}
+  .item .tp{font-size:12px;color:var(--muted);margin-top:1px}
+  .item .meta{display:flex;gap:8px;margin-top:5px;align-items:center;flex-wrap:wrap}
+  .item .chip{font-size:11px;font-weight:700;padding:1px 8px;border-radius:999px;background:var(--brand-soft);color:var(--brand)}
+  .item .chip.last{background:#eef0f4;color:var(--muted);font-weight:600}
+  .item .chip.skip{background:var(--amber-soft);color:var(--amber)}
+  .card.locked{opacity:.55;cursor:not-allowed}
+  .meta-head{display:flex;justify-content:space-between;align-items:center;cursor:pointer;user-select:none}
+  .item .ck{flex-shrink:0;--s:26px;width:var(--s);height:var(--s);border-radius:50%;border:2px solid #cbd5e1;background:#fff;position:relative;transition:.15s}
+  .item .ck.on{border-color:var(--green);background:var(--green)}
+  .item .ck.on::after{content:"";position:absolute;left:7px;top:3px;width:7px;height:12px;border:solid #fff;border-width:0 2px 2px 0;transform:rotate(45deg)}
+  .item .chevron{color:#c3c9d4;font-size:12px;flex-shrink:0;transition:transform .2s}
+  .item .expand{display:none;margin-top:10px;border-top:1px dashed var(--line);padding-top:9px}
+  .item.expanded .chevron{transform:rotate(180deg)}
+  .item.expanded .expand{display:block}
+  .item .fields{display:flex;gap:8px;margin-bottom:8px}
+  .item .fields div{flex:1}
+  .item .fields label{display:block;font-size:11px;color:var(--muted);margin-bottom:3px}
+  .item .fields input,.item .fields textarea{width:100%;border:1px solid var(--line);border-radius:8px;padding:8px 9px;font-size:14px;background:#fff;font-family:inherit}
+  .item .fields textarea{resize:none}
+  .item.done{border-color:#bfe6cd;background:var(--green-soft)}
+
+  .hint{font-size:12px;color:var(--muted);background:#f6f8fb;border:1px dashed var(--line);border-radius:10px;padding:9px 11px;margin-bottom:14px}
+
+  /* 统计 */
+  .chart-card h3{font-size:14px;font-weight:800;margin-bottom:4px}
+  .chart-card .cap{font-size:11px;color:var(--muted);margin-bottom:8px}
+  .legend{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;font-size:12px;color:var(--muted)}
+  .legend .li{display:flex;align-items:center;gap:6px;padding:3px 8px;border:1px solid transparent;border-radius:8px;cursor:pointer;transition:background .15s,border-color .15s,opacity .15s}
+  .legend .li.on{background:var(--brand-soft);color:var(--brand);border-color:#c7d7fb;font-weight:700}
+  .legend .li.dim{opacity:.35}
+  .legend .sw{width:10px;height:10px;border-radius:3px;flex:none}
+  .metric-btns{display:flex;gap:6px;margin-bottom:10px}
+  .metric-btns button{flex:1;border:1px solid var(--line);background:#fff;border-radius:10px;padding:8px 4px;font-size:12.5px;font-weight:700;color:var(--muted);cursor:pointer;font-family:inherit}
+  .metric-btns button.on{background:var(--brand);border-color:var(--brand);color:#fff}
+  .card.locked{opacity:.5;filter:grayscale(.25)}
+  .card.locked *{pointer-events:none}
+  .sel{width:100%;border:1px solid var(--line);border-radius:10px;padding:9px 10px;font-size:13px;background:#fff;color:var(--ink);margin-bottom:10px;font-family:inherit}
+  canvas{width:100%;display:block}
+  .metric-form{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
+  .metric-form .f label{display:block;font-size:11px;color:var(--muted);margin-bottom:3px}
+  .metric-form .f input{width:100%;border:1px solid var(--line);border-radius:8px;padding:8px;font-size:14px;background:#fff}
+  .btn{width:100%;border:none;border-radius:12px;background:var(--brand);color:#fff;font-size:15px;font-weight:700;padding:12px;cursor:pointer}
+  .btn.green{background:var(--green)}
+  .btn-row{display:flex;gap:8px;margin-bottom:8px}
+  .btn.mini{flex:1;font-size:13px;padding:9px}
+  .btn.ghost{background:#fff;color:var(--brand);border:1px solid var(--brand)}
+  .saved{font-size:12px;color:var(--green);margin-top:8px;min-height:16px}
+  .empty{text-align:center;color:var(--muted);padding:16px;font-size:13px}
+
+  /* 训练计划弹层 */
+  .plan-modal{position:fixed;inset:0;background:#f4f6f9;z-index:40;display:none;flex-direction:column}
+  .plan-modal.show{display:flex}
+  .plan-head{display:flex;justify-content:space-between;align-items:center;padding:14px 16px;border-bottom:1px solid var(--line);background:#fff}
+  .plan-head h3{font-size:16px;font-weight:800}
+  .plan-body{flex:1;overflow-y:auto;padding:12px 16px 40px}
+  .p-day{background:#fff;border:1px solid var(--line);border-radius:var(--radius);margin-bottom:12px;padding:12px 14px}
+  .p-day-head{font-weight:800;font-size:14px;margin-bottom:6px;color:var(--brand)}
+  .p-item{padding:8px 0;border-top:1px dashed var(--line)}
+  .p-item:first-child{border-top:none}
+  .p-top{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+  .p-name{font-weight:700;font-size:13.5px;line-height:1.4}
+  .p-target{font-size:12px;color:var(--brand);font-weight:800;white-space:nowrap}
+  .p-gear{font-size:12px;color:var(--muted);margin-top:3px}
+  .p-tip{font-size:12px;color:var(--amber);margin-top:2px}
+
+  /* ========== 清新浅色 · 精细化覆盖 ========== */
+  :root{
+    --bg:#eef3f6; --bg2:#e6f2f1; --card:#ffffff; --ink:#17202b; --muted:#7c8894;
+    --line:#e5ecf0;
+    --brand:#14b8a6; --brand-deep:#0e9487; --brand-soft:#e2f6f2;
+    --green:#1fa36b; --green-soft:#e5f6ec;
+    --amber:#df8a0e; --amber-soft:#fbf1e0;
+    --red:#e04f4f; --red-soft:#fce9e9;
+    --radius:16px;
+    --shadow:0 1px 3px rgba(20,40,60,.05),0 8px 22px rgba(20,40,60,.05);
+    --shadow-hover:0 6px 18px rgba(10,40,40,.10),0 16px 38px rgba(20,184,166,.13);
+    --t-ease:cubic-bezier(.25,.8,.35,1);
+  }
+  body{background:linear-gradient(180deg,var(--bg) 0%,var(--bg2) 100%);-webkit-font-smoothing:antialiased}
+  header.top{padding:8px 4px 18px}
+  header.top .t h1{font-size:22px;letter-spacing:.3px;background:linear-gradient(120deg,var(--brand-deep),var(--brand));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  header.top .t .sub{margin-top:2px}
+  .seg{background:rgba(255,255,255,.78);border:1px solid var(--line);border-radius:13px;box-shadow:var(--shadow)}
+  .seg button{transition:color .2s,background .2s,box-shadow .2s}
+  .seg button.on{background:linear-gradient(135deg,var(--brand),#18c2bd);color:#fff;box-shadow:0 4px 12px rgba(20,184,166,.35)}
+  .week-nav button{box-shadow:var(--shadow);transition:border-color .2s,color .2s,transform .15s var(--t-ease)}
+  .week-nav button:hover{border-color:var(--brand);color:var(--brand);transform:translateY(-1px)}
+  .card{box-shadow:var(--shadow);transition:transform var(--t-ease),box-shadow var(--t-ease),border-color var(--t-ease)}
+  .day-card:hover{box-shadow:var(--shadow-hover);transform:translateY(-2px);border-color:#d5ebe7}
+  .mini-bar{background:#eef2f5}
+  .mini-bar > div{background:linear-gradient(90deg,var(--brand),#2cd1c4);transition:width .4s var(--t-ease)}
+  .mini-label{margin-top:7px}
+  .badge.today{background:linear-gradient(135deg,var(--brand),var(--brand-deep))}
+  .overlay{background:rgba(18,35,42,.45);-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px)}
+  .sheet{max-width:640px;border-radius:22px 22px 0 0;box-shadow:0 -12px 42px rgba(10,30,40,.18)}
+  .sheet-head{padding:15px 18px}
+  .sheet-close{width:34px;height:34px;border-radius:11px;transition:background .2s,color .2s,border-color .2s}
+  .sheet-close:hover{background:var(--brand-soft);color:var(--brand-deep);border-color:var(--brand)}
+  .sheet-body{padding:15px 18px 28px}
+  .item{transition:border-color .2s,box-shadow .2s}
+  .item:hover{border-color:#d4e9e4;box-shadow:0 4px 12px rgba(20,184,166,.08)}
+  .item .ck{transition:border-color .18s,background .18s}
+  .item .ck.on{border-color:var(--green);background:linear-gradient(135deg,#2fd69a,var(--green))}
+  .item .chip{color:var(--brand-deep)}
+  .item .expand{border-top-color:#e8eef0}
+  .item.done{border-color:#d3ecd9;background:linear-gradient(180deg,#f2fbf5,#e8f7ee)}
+  .metric-btns{background:#f1f6f5;padding:4px;border-radius:12px;gap:6px}
+  .metric-btns button{border:1px solid transparent;background:transparent;border-radius:9px;padding:7px 4px;transition:color .2s,box-shadow .2s,background .2s}
+  .metric-btns button.on{background:#fff;border-color:var(--line);color:var(--brand-deep);box-shadow:0 2px 6px rgba(20,40,60,.08)}
+  .legend .li.on{color:var(--brand-deep);border-color:#bfeee7}
+  .legend .sw{border-radius:4px;width:11px;height:11px}
+  .sel{border-radius:12px;padding:10px 12px;box-shadow:var(--shadow)}
+  .btn{background:linear-gradient(135deg,var(--brand),var(--brand-deep));box-shadow:0 6px 16px rgba(20,184,166,.28);transition:filter .2s,transform .12s,box-shadow .2s}
+  .btn:hover{filter:brightness(1.06)}
+  .btn:active{transform:translateY(1px);box-shadow:0 3px 8px rgba(20,184,166,.2)}
+  .btn.green{background:linear-gradient(135deg,#2fd69a,var(--green));box-shadow:0 6px 16px rgba(31,163,107,.25)}
+  .btn.ghost{color:var(--brand-deep);box-shadow:none}
+  .btn.ghost:hover{background:var(--brand-soft)}
+  .metric-form .f input{transition:border-color .2s}
+  .metric-form .f input:focus{border-color:var(--brand);outline:none}
+  .card.locked{opacity:.55;filter:grayscale(.2)}
+  .plan-head{box-shadow:var(--shadow)}
+  .p-day{box-shadow:var(--shadow)}
+  .p-day-head{color:var(--brand-deep)}
+  .plan-modal{background:var(--bg)}
+
+  /* 桌面宽度适配 */
+  @media (min-width:820px){
+    .app{max-width:880px;padding:26px 30px 56px}
+    header.top .t h1{font-size:25px}
+    header.top .t .sub{font-size:13px}
+    #viewStats{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start}
+    #viewStats > .card{margin-bottom:0}
+    #viewStats > .chart-card:last-child{grid-column:1/-1}
+    .sheet{max-width:720px}
+  }
+
+  /* ================= 新增：训练日按钮组 / 通用圆润弹窗 / 日历热力图 / 打印导出 ================= */
+  #weekLabel{cursor:pointer;user-select:none;padding:4px 10px;border-radius:10px;transition:background .2s,color .2s}
+  #weekLabel:hover{background:var(--brand-soft);color:var(--brand-deep)}
+  .day-btns{display:flex;gap:6px;margin-bottom:10px}
+  .day-btns button{flex:1;border:1px solid var(--line);background:#fff;border-radius:11px;padding:9px 4px;font-size:12.5px;font-weight:700;color:var(--muted);cursor:pointer;font-family:inherit;transition:color .2s,background .2s,box-shadow .2s}
+  .day-btns button.on{background:linear-gradient(135deg,var(--brand),var(--brand-deep));border-color:var(--brand);color:#fff;box-shadow:0 4px 12px rgba(20,184,166,.28)}
+
+  .mdialog{position:fixed;inset:0;z-index:60;display:none;align-items:center;justify-content:center;padding:20px;background:rgba(18,35,42,.45);-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px)}
+  .mdialog.show{display:flex}
+  .mdialog .box{width:100%;max-width:560px;max-height:86vh;background:#fff;border-radius:20px;box-shadow:0 20px 60px rgba(10,30,40,.28);display:flex;flex-direction:column;overflow:hidden;border:1px solid var(--line)}
+  .mdialog .mhead{display:flex;justify-content:space-between;align-items:center;padding:15px 18px;border-bottom:1px solid var(--line)}
+  .mdialog .mhead h3{font-size:16px;font-weight:800}
+  .mdialog .mbody{flex:1;overflow-y:auto;padding:16px 18px}
+  .mdialog .mfoot{display:flex;gap:10px;padding:14px 18px;border-top:1px solid var(--line)}
+  .mdialog .mfoot .btn{flex:1;margin:0}
+
+  .fmt-list{display:flex;flex-direction:column;gap:10px}
+  .fmt-item{display:flex;align-items:center;gap:12px;border:1px solid var(--line);border-radius:14px;padding:13px 14px;cursor:pointer;transition:border-color .2s,box-shadow .2s,transform .12s}
+  .fmt-item:hover{border-color:var(--brand);box-shadow:var(--shadow-hover);transform:translateY(-1px)}
+  .fmt-ico{width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;color:#fff;flex:none}
+  .fmt-item .f-t{font-weight:700;font-size:14px}
+  .fmt-item .f-d{font-size:12px;color:var(--muted);margin-top:1px}
+
+  .field-lab{margin-bottom:6px}
+  .field-lab label{display:block;font-size:12px;color:var(--muted);margin-bottom:4px}
+  .field-lab input{width:100%;border:1px solid var(--line);border-radius:12px;padding:10px 12px;font-size:14px;background:#fff;font-family:inherit;transition:border-color .2s}
+  .field-lab input:focus{border-color:var(--brand);outline:none}
+
+  .plan-select-list{display:flex;flex-direction:column;gap:10px}
+  .ps-item{border:1px solid var(--line);border-radius:14px;padding:12px 14px;cursor:pointer;transition:border-color .2s,box-shadow .2s}
+  .ps-item:hover{border-color:var(--brand);box-shadow:var(--shadow-hover)}
+  .ps-item .pn{font-weight:700;font-size:14px}
+  .ps-item .pm{font-size:12px;color:var(--muted);margin-top:2px}
+  .ps-item.active{border-color:var(--brand);background:var(--brand-soft)}
+  .ps-item.active .pn{color:var(--brand-deep)}
+  .ps-item .del{float:right;border:none;background:transparent;color:var(--red);font-size:13px;cursor:pointer;font-family:inherit}
+
+  .hint-sel{font-size:12px;color:var(--muted);background:#f6f8fb;border:1px dashed var(--line);border-radius:10px;padding:8px 11px;margin:6px 0 14px}
+
+  /* 日历热力图 */
+  .cal-scroll{overflow:auto;max-height:60vh}
+  .cal-inner{display:flex;gap:3px;min-width:max-content}
+  .cal-col{display:flex;flex-direction:column;gap:3px}
+  .cal-head{display:flex;gap:3px;margin-bottom:6px;min-width:max-content}
+  .cal-head span{width:15px;height:18px;text-align:center;font-size:10px;color:var(--muted)}
+  .cal-cell{width:15px;height:15px;border-radius:4px;background:#eaedf0;cursor:pointer;transition:transform .12s,box-shadow .12s}
+  .cal-cell:hover{transform:scale(1.25);box-shadow:0 0 0 2px var(--brand)}
+  .cal-cell.l0{background:#e9ecee}
+  .cal-cell.l1{background:#d7f2e5}
+  .cal-cell.l2{background:#a9e3c3}
+  .cal-cell.l3{background:#54c68d}
+  .cal-cell.l4{background:#18a66c}
+  .cal-cell.none{background:#f6f8f9;cursor:default}
+  .cal-cell.none:hover{transform:none;box-shadow:none}
+  .cal-legend{display:flex;align-items:center;gap:4px;font-size:11px;color:var(--muted);margin-top:12px;flex-wrap:wrap}
+  .cal-legend .c{width:13px;height:13px;border-radius:3px}
+  .cal-week{font-size:12px;color:var(--muted);margin-bottom:12px}
+  .cal-week b{color:var(--brand-deep)}
+
+  /* print only 导出用 */
+  #printArea{display:none}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <header class="top">
+    <div class="t"><h1>我的健身打卡</h1><div class="sub">减脂为主 · 顺带紧致增肌</div></div>
+    <div class="seg">
+      <button id="viewPlanBtn" class="on" onclick="switchView('plan')">周计划</button>
+      <button id="viewStatsBtn" onclick="switchView('stats')">数据</button>
+    </div>
+  </header>
+
+  <!-- 周计划视图 -->
+  <div id="viewPlan">
+    <div class="week-nav">
+      <button id="prevW" aria-label="上一周">‹</button>
+      <span id="weekLabel" onclick="openCalendar()" title="点击查看训练活跃日历">8/31 – 9/6</span>
+      <button id="nextW" aria-label="下一周">›</button>
+    </div>
+    <div id="dayList"></div>
+    <div class="card chart-card" id="metaCard">
+      <div class="meta-head">
+        <h3>一周数据记录</h3>
+      </div>
+      <div class="cap">完成第 4 天训练后自动解锁并展开填写</div>
+      <div id="metaBody" style="display:none">
+        <div class="metric-form" id="metricForm">
+          <div class="f"><label>体重 (kg)</label><input id="m_w" type="number" inputmode="decimal"></div>
+          <div class="f"><label>体脂率 (%)</label><input id="m_b" type="number" inputmode="decimal"></div>
+          <div class="f"><label>腰围 (cm)</label><input id="m_wa" type="number" inputmode="decimal"></div>
+          <div class="f"><label>臀围 (cm)</label><input id="m_hi" type="number" inputmode="decimal"></div>
+          <div class="f"><label>腿围 (cm)</label><input id="m_le" type="number" inputmode="decimal"></div>
+        </div>
+        <button class="btn green" onclick="saveMeta()">保存本周数据</button>
+      </div>
+      <div class="saved" id="metaSaved"></div>
+    </div>
+  </div>
+
+  <!-- 数据视图 -->
+  <div id="viewStats" style="display:none">
+    <div class="card chart-card">
+      <h3>身体数据变化</h3>
+      <div class="metric-btns" id="metricBtns">
+        <button type="button" data-m="w" class="on">体重</button>
+        <button type="button" data-m="b">体脂率</button>
+        <button type="button" data-m="wa">腰围</button>
+        <button type="button" data-m="hi">臀围</button>
+        <button type="button" data-m="le">腿围</button>
+      </div>
+      <canvas id="bodyChart" height="200"></canvas>
+    </div>
+
+    <div class="card chart-card">
+      <h3 id="exTitle">动作数值变化</h3>
+      <div class="cap">选择训练日，查看该天各动作的数值变化趋势</div>
+      <div class="day-btns" id="exDayBtns"></div>
+      <canvas id="exChart" height="200"></canvas>
+      <div id="exLegend" class="legend"></div>
+    </div>
+
+    <div class="card chart-card">
+      <h3>计划与记录管理</h3>
+      <div class="cap">查看完整训练内容、导出到其他设备，或导入/切换更符合你节奏的计划</div>
+      <div class="btn-row">
+        <button class="btn mini" onclick="openPlan()">查看计划</button>
+        <button class="btn mini" onclick="exportModel('plan')">导出计划</button>
+        <button class="btn mini" onclick="document.getElementById('importFile').click()">导入计划</button>
+      </div>
+      <div class="btn-row">
+        <button class="btn mini" onclick="exportModel('rec')">导出记录表</button>
+        <button class="btn mini ghost" onclick="openSwitchPlan()">切换计划</button>
+      </div>
+      <input type="file" id="importFile" accept=".json,application/json" hidden="" onchange="importPlan(this)">
+    </div>
+  </div>
+
+</div>
+
+<!-- 抽屉 -->
+<div class="overlay" id="overlay" onclick="closeDetail()"></div>
+<div class="sheet" id="sheet">
+  <div class="sheet-head">
+    <div class="t" id="sheetTitle">第 1 天 · 下肢推 + 胸推 + 核心</div>
+    <button class="sheet-close" onclick="closeDetail()">✕</button>
+  </div>
+  <div class="sheet-body" id="sheetBody"><div class="item " onclick="toggleExp(0,event)">
+      <div class="row1">
+        <div class="info">
+          <div class="nm">杠铃深蹲（或腿举机）</div>
+          <div class="tp">目标 3×8–12</div>
+          <div class="meta"><span class="chip">未填</span></div>
+        </div>
+        <div class="ck " onclick="event.stopPropagation();toggleDone(0)"></div>
+        <div class="chevron">⌄</div>
+      </div>
+      <div class="expand" onclick="event.stopPropagation()">
+        <div class="fields">
+          <div><label>重量 (kg)</label><input type="number" inputmode="decimal" value="" placeholder="0" oninput="setVal(0,this.value)"></div>
+          <div><label>备注</label><input type="text" value="" placeholder="如 留2次余量" oninput="setNote(0,this.value)"></div>
+        </div>
+        <button class="btn mini ghost" onclick="event.stopPropagation();skipAction(0)">摸鱼跳过该项 · 记 0</button>
+      </div>
+    </div><div class="item " onclick="toggleExp(1,event)">
+      <div class="row1">
+        <div class="info">
+          <div class="nm">哑铃卧推（平/上斜）</div>
+          <div class="tp">目标 3×8–12</div>
+          <div class="meta"><span class="chip">未填</span></div>
+        </div>
+        <div class="ck " onclick="event.stopPropagation();toggleDone(1)"></div>
+        <div class="chevron">⌄</div>
+      </div>
+      <div class="expand" onclick="event.stopPropagation()">
+        <div class="fields">
+          <div><label>重量 (kg)</label><input type="number" inputmode="decimal" value="" placeholder="0" oninput="setVal(1,this.value)"></div>
+          <div><label>备注</label><input type="text" value="" placeholder="如 留2次余量" oninput="setNote(1,this.value)"></div>
+        </div>
+        <button class="btn mini ghost" onclick="event.stopPropagation();skipAction(1)">摸鱼跳过该项 · 记 0</button>
+      </div>
+    </div><div class="item " onclick="toggleExp(2,event)">
+      <div class="row1">
+        <div class="info">
+          <div class="nm">哑铃坐姿肩上推举</div>
+          <div class="tp">目标 3×8–12</div>
+          <div class="meta"><span class="chip">未填</span></div>
+        </div>
+        <div class="ck " onclick="event.stopPropagation();toggleDone(2)"></div>
+        <div class="chevron">⌄</div>
+      </div>
+      <div class="expand" onclick="event.stopPropagation()">
+        <div class="fields">
+          <div><label>重量 (kg)</label><input type="number" inputmode="decimal" value="" placeholder="0" oninput="setVal(2,this.value)"></div>
+          <div><label>备注</label><input type="text" value="" placeholder="如 留2次余量" oninput="setNote(2,this.value)"></div>
+        </div>
+        <button class="btn mini ghost" onclick="event.stopPropagation();skipAction(2)">摸鱼跳过该项 · 记 0</button>
+      </div>
+    </div><div class="item " onclick="toggleExp(3,event)">
+      <div class="row1">
+        <div class="info">
+          <div class="nm">哑铃侧平举</div>
+          <div class="tp">目标 3×12–15</div>
+          <div class="meta"><span class="chip">未填</span></div>
+        </div>
+        <div class="ck " onclick="event.stopPropagation();toggleDone(3)"></div>
+        <div class="chevron">⌄</div>
+      </div>
+      <div class="expand" onclick="event.stopPropagation()">
+        <div class="fields">
+          <div><label>重量 (kg)</label><input type="number" inputmode="decimal" value="" placeholder="0" oninput="setVal(3,this.value)"></div>
+          <div><label>备注</label><input type="text" value="" placeholder="如 留2次余量" oninput="setNote(3,this.value)"></div>
+        </div>
+        <button class="btn mini ghost" onclick="event.stopPropagation();skipAction(3)">摸鱼跳过该项 · 记 0</button>
+      </div>
+    </div><div class="item " onclick="toggleExp(4,event)">
+      <div class="row1">
+        <div class="info">
+          <div class="nm">绳索下压 / 臂屈伸</div>
+          <div class="tp">目标 3×10–15</div>
+          <div class="meta"><span class="chip">未填</span></div>
+        </div>
+        <div class="ck " onclick="event.stopPropagation();toggleDone(4)"></div>
+        <div class="chevron">⌄</div>
+      </div>
+      <div class="expand" onclick="event.stopPropagation()">
+        <div class="fields">
+          <div><label>重量 (kg)</label><input type="number" inputmode="decimal" value="" placeholder="0" oninput="setVal(4,this.value)"></div>
+          <div><label>备注</label><input type="text" value="" placeholder="如 留2次余量" oninput="setNote(4,this.value)"></div>
+        </div>
+        <button class="btn mini ghost" onclick="event.stopPropagation();skipAction(4)">摸鱼跳过该项 · 记 0</button>
+      </div>
+    </div><div class="item " onclick="toggleExp(5,event)">
+      <div class="row1">
+        <div class="info">
+          <div class="nm">绳索卷腹</div>
+          <div class="tp">目标 3×12–15</div>
+          <div class="meta"><span class="chip">未填</span></div>
+        </div>
+        <div class="ck " onclick="event.stopPropagation();toggleDone(5)"></div>
+        <div class="chevron">⌄</div>
+      </div>
+      <div class="expand" onclick="event.stopPropagation()">
+        <div class="fields">
+          <div><label>次数 (次)</label><input type="number" inputmode="decimal" value="" placeholder="0" oninput="setVal(5,this.value)"></div>
+          <div><label>备注</label><input type="text" value="" placeholder="如 留2次余量" oninput="setNote(5,this.value)"></div>
+        </div>
+        <button class="btn mini ghost" onclick="event.stopPropagation();skipAction(5)">摸鱼跳过该项 · 记 0</button>
+      </div>
+    </div><div class="item " onclick="toggleExp(6,event)">
+      <div class="row1">
+        <div class="info">
+          <div class="nm">收尾有氧：快走/单车</div>
+          <div class="tp">目标 12–15min</div>
+          <div class="meta"><span class="chip">未填</span></div>
+        </div>
+        <div class="ck " onclick="event.stopPropagation();toggleDone(6)"></div>
+        <div class="chevron">⌄</div>
+      </div>
+      <div class="expand" onclick="event.stopPropagation()">
+        <div class="fields">
+          <div><label>时长 (分钟)</label><input type="number" inputmode="decimal" value="" placeholder="0" oninput="setVal(6,this.value)"></div>
+          <div><label>备注</label><input type="text" value="" placeholder="如 留2次余量" oninput="setNote(6,this.value)"></div>
+        </div>
+        <button class="btn mini ghost" onclick="event.stopPropagation();skipAction(6)">摸鱼跳过该项 · 记 0</button>
+      </div>
+    </div><div style="margin-top:6px"><button class="btn mini ghost" onclick="skipDay()">摸鱼跳过整个第 1 天 · 记 0</button></div></div>
+</div>
+
+<script>
+let DAYS = {
+  1:{title:'第 1 天', name:'下肢推 + 胸推 + 核心', weekdays:[1], items:[
+    {name:'杠铃深蹲（或腿举机）', target:'3×8–12', rt:'weight', u:'kg', gear:'深蹲架/杠铃 或 腿举机', tip:'下肢主菜，先空杠学动作'},
+    {name:'哑铃卧推（平/上斜）', target:'3×8–12', rt:'weight', u:'kg', gear:'哑铃凳+哑铃', tip:'胸+三头'},
+    {name:'哑铃坐姿肩上推举', target:'3×8–12', rt:'weight', u:'kg', gear:'哑铃+凳', tip:'肩'},
+    {name:'哑铃侧平举', target:'3×12–15', rt:'weight', u:'kg', gear:'哑铃', tip:'肩部中束'},
+    {name:'绳索下压 / 臂屈伸', target:'3×10–15', rt:'weight', u:'kg', gear:'龙门架绳索 或 臂屈伸架', tip:'三头'},
+    {name:'绳索卷腹', target:'3×12–15', rt:'count', u:'次', gear:'龙门架+绳索', tip:'核心'},
+    {name:'收尾有氧：快走/单车', target:'12–15min', rt:'time', u:'分钟', gear:'跑步机/动感单车', tip:'中低强度'},
+  ]},
+  2:{title:'第 2 天', name:'背拉 + 后侧链 + 核心', weekdays:[2], items:[
+    {name:'高位下拉', target:'3×8–12', rt:'weight', u:'kg', gear:'高拉机', tip:'背部宽度'},
+    {name:'坐姿划船', target:'3×10–12', rt:'weight', u:'kg', gear:'坐姿划船机 / 龙门架', tip:'背部厚度'},
+    {name:'杠铃/哑铃划船', target:'3×10–12', rt:'weight', u:'kg', gear:'杠铃 或 哑铃+凳', tip:'背阔肌'},
+    {name:'绳索面拉', target:'3×12–15', rt:'weight', u:'kg', gear:'龙门架+绳索', tip:'后肩/上背'},
+    {name:'杠铃罗马尼亚硬拉', target:'3×8–10', rt:'weight', u:'kg', gear:'杠铃+杠铃片', tip:'腘绳+臀+下背'},
+    {name:'悬垂举腿', target:'3×8–12', rt:'count', u:'次', gear:'引体架', tip:'下腹'},
+    {name:'收尾有氧：动感单车', target:'15min', rt:'time', u:'分钟', gear:'动感单车', tip:'中低强度'},
+  ]},
+  3:{title:'第 3 天', name:'臀腿髋 · 瘦腿瘦臀', weekdays:[4], items:[
+    {name:'杠铃臀推', target:'3×8–12', rt:'weight', u:'kg', gear:'杠铃+凳/垫 或 臀推机', tip:'臀部紧致关键动作'},
+    {name:'罗马尼亚硬拉 / 腿弯举', target:'3×10–12', rt:'weight', u:'kg', gear:'杠铃 或 腿弯举机', tip:'大腿后侧'},
+    {name:'哑铃弓步蹲（行走）', target:'3×8–10/腿', rt:'weight', u:'kg', gear:'哑铃', tip:'臀+大腿塑形'},
+    {name:'腿举机（低位脚尖）', target:'3×10–12', rt:'weight', u:'kg', gear:'腿举机', tip:'强壮臀腿'},
+    {name:'站姿提踵', target:'3×15', rt:'count', u:'次', gear:'提踵机 或 哑铃', tip:'小腿塑形'},
+    {name:'平板支撑 + 鸟狗式', target:'3×30–45s/8', rt:'time', u:'秒', gear:'自重（瑜伽垫）', tip:'核心稳定'},
+    {name:'收尾有氧：上坡走', target:'15min', rt:'time', u:'分钟', gear:'跑步机', tip:'中低强度'},
+  ]},
+  4:{title:'第 4 天', name:'全身代谢燃脂 + 核心', weekdays:[5], items:[
+    {name:'壶铃摆动', target:'4×15', rt:'count', u:'次', gear:'壶铃', tip:'全身爆发'},
+    {name:'药球砸地', target:'3×10/侧', rt:'count', u:'次', gear:'药球', tip:'核心+爆发'},
+    {name:'哑铃蹲 / 农夫行走', target:'3×', rt:'weight', u:'kg', gear:'哑铃', tip:'复合代谢'},
+    {name:'动感单车冲刺 HIIT', target:'6×30s+90s', rt:'time', u:'分钟', gear:'动感单车/跑步机', tip:'心肺燃脂主力'},
+    {name:'平板支撑 + 死虫式', target:'3×40s/侧', rt:'time', u:'秒', gear:'自重（瑜伽垫）', tip:'核心收尾'},
+  ]},
+};
+const DAY_ORDER = [1,2,3,4];
+
+/* ---------- 在线更新配置 ---------- */
+const APP_VERSION = '1.0.0';                 // 当前版本，随发版手动递增
+const UPDATE_REPO = 'AC-kiko/fitness-discipline-tracker'; // 改成你的 owner/repo（不含 https）
+function updateApiUrl(){ return 'https://api.github.com/repos/'+UPDATE_REPO+'/releases/latest'; }
+function cmpVersion(a,b){ const va=String(a).replace(/^v/,'').split('.').map(Number), vb=String(b).replace(/^v/,'').split('.').map(Number); for(let i=0;i<3;i++){ const x=va[i]||0, y=vb[i]||0; if(x!==y) return x-y; } return 0; }
+function checkUpdate(){
+  if(!UPDATE_REPO || UPDATE_REPO.indexOf('/')<0) return;
+  fetch(updateApiUrl(), {headers:{Accept:'application/vnd.github+json'}})
+    .then(r=> r.ok? r.json() : null)
+    .then(data=>{
+      if(!data || !data.tag_name) return;
+      const tag=String(data.tag_name).replace(/^v/,'');
+      if(cmpVersion(tag, APP_VERSION) <= 0) return;
+      let apk=''; let asset=data.assets && data.assets.find(a=>/\.apk$/i.test(a.name));
+      if(asset) apk=asset.browser_download_url;
+      document.getElementById('updCur').textContent='当前 v'+APP_VERSION;
+      document.getElementById('updNew').textContent='最新 v'+tag;
+      document.getElementById('updNote').textContent=(data.body||'').replace(/\r?\n/g,' ').slice(0,200)||'（发布说明为空）';
+      const dl=document.getElementById('updDl');
+      dl.onclick=()=>{
+        if(apk){ dl.textContent='正在打开下载…'; const a=document.createElement('a'); a.href=apk; a.target='_blank'; a.rel='noopener'; document.body.appendChild(a); a.click(); a.remove(); }
+        else window.open(data.html_url||updateApiUrl(),'_blank');
+      };
+      openDialog('updModel');
+    }).catch(()=>{});
+}
+checkUpdate();
+
+/* 顺序解锁 */
+function dayDone(items){ return items.length>0 && items.every(i=> i.done); }
+function dayAllSkipped(items){ return items.length>0 && items.every(i=> i.done && i.skip); }
+function unlocked(n){ return n===1 || dayDone(loadWeek().data[n-1].items); }
+function lockMsg(n){ return n===1?'':`请先完成「${DAYS[n-1].title}」再开始${DAYS[n].title}`; }
+
+/* ---------- 训练计划管理（多套） ---------- */
+const PLANS_STORE='gym-plans', ACTIVE_STORE='gym-active';
+function loadPlans(){ try{ const raw=localStorage.getItem(PLANS_STORE); if(raw){ const p=JSON.parse(raw); if(p&&typeof p==='object') return p; } }catch(e){} return null; }
+function savePlans(p){ localStorage.setItem(PLANS_STORE, JSON.stringify(p)); }
+function planNames(){ const p=loadPlans(); return p? Object.keys(p):[]; }
+function activePlanName(){ const n=localStorage.getItem(ACTIVE_STORE)||''; const ns=planNames(); return n&&ns.includes(n)? n : (ns[0]||''); }
+function setActivePlan(n){ localStorage.setItem(ACTIVE_STORE,n); }
+let plNames=[];
+function refreshPlanNames(){ plNames=planNames(); }
+(function initPlans(){
+  const builtin = JSON.stringify(DAYS);
+  let plans = loadPlans();
+  let changed=false;
+  if(!plans){ plans={}; }
+  if(!plans['基础计划（减脂增肌）']){ plans['基础计划（减脂增肌）']=JSON.parse(builtin); changed=true; }
+  let legacy=''; try{ legacy=localStorage.getItem('gym-plan')||''; }catch(e){}
+  if(legacy && !plans['导入的计划']){ try{ plans['导入的计划']=JSON.parse(legacy); changed=true; localStorage.removeItem('gym-plan'); }catch(e){} }
+  if(changed) savePlans(plans);
+  const an=activePlanName();
+  DAYS = plans[an] || plans[Object.keys(plans)[0]] || DAYS;
+})();
+function openDialog(id){ document.getElementById(id).classList.add('show'); }
+function closeDialog(id){ document.getElementById(id).classList.remove('show'); }
+function buildPlanFragment(p){
+  return DAY_ORDER.map(n=>{
+    const d=p[n]; if(!d||!d.items) return '';
+    const rows=d.items.map((it,i)=>{
+      const gear=it.gear||'——', tip=it.tip||'';
+      const meta=tip? `<div class="p-gear">器械：${gear}</div><div class="p-tip">${tip}</div>` : `<div class="p-gear">器械：${gear}</div>`;
+      return `<div class="p-item"><div class="p-top"><div class="p-name">${i+1}. ${it.name}</div><div class="p-target">${it.target||''}</div></div>${meta}</div>`;
+    }).join('');
+    return `<div class="p-day"><div class="p-day-head">${d.title} · ${d.name||''}</div>${rows}</div>`;
+  }).join('');
+}
+
+/* ---------- 导入 / 导出 ---------- */
+function download(fname, content, type){
+  const b=new Blob([content],{type:type||'text/plain;charset=utf-8'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download=fname;
+  document.body.appendChild(a); a.click();
+  setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); }, 300);
+}
+function openPlan(){
+  const body=document.getElementById('planBody');
+  body.innerHTML = buildPlanFragment(DAYS);
+  document.getElementById('planModal').classList.add('show');
+  document.body.style.overflow='hidden';
+}
+function closePlan(){ document.getElementById('planModal').classList.remove('show'); document.body.style.overflow=''; }
+
+/* 导出：选格式 → json 直出 / html·pdf 预览后导出 */
+function exportModel(type){
+  document.getElementById('exportTitle').textContent = type==='plan'? '导出训练计划':'导出训练记录';
+  const fmts=[
+    {f:'json', t:'JSON', d: type==='plan'? '结构化 JSON，便于再次导入':'全部训练与身体记录的结构化数据', c:'#f59e0b', act:'direct'},
+    {f:'html', t:'HTML', d:'预览后导出为可打印网页', c:'#e04f4f', act:'preview'},
+    {f:'pdf', t:'PDF', d:'预览后打印，在打印对话框另存为 PDF', c:'#2563eb', act:'preview'}
+  ];
+  document.getElementById('exportFmts').innerHTML = fmts.map(o=>{
+    const cb = o.act==='direct' ? `doDirectJson('${type}')` : `openPreview('${type}','${o.f}')`;
+    return `<div class="fmt-item" onclick="${cb}">
+      <div class="fmt-ico" style="background:${o.c}">${o.t[0]}</div>
+      <div><div class="f-t">${o.t}</div><div class="f-d">${o.d}</div></div>
+    </div>`;
+  }).join('');
+  openDialog('exportModel');
+}
+function doDirectJson(type){
+  closeDialog('exportModel');
+  if(type==='plan') download('我的训练计划.json', JSON.stringify(DAYS,null,2), 'application/json;charset=utf-8');
+  else download('训练记录表.json', JSON.stringify(buildRecJson(),null,2), 'application/json;charset=utf-8');
+}
+function openPreview(type, fmt){
+  closeDialog('exportModel');
+  const isPlan = type==='plan';
+  const title = isPlan? '训练计划':'训练记录表';
+  const body = isPlan? buildPlanFragment(DAYS) : buildExportRec();
+  window._prevExport={type,fmt,title,body};
+  document.getElementById('previewTitle').textContent = fmt.toUpperCase()+' · '+title+'（预览）';
+  document.getElementById('previewBody').innerHTML = body;
+  document.getElementById('previewPrimary').innerHTML = fmt==='html'? '导出 HTML' : '打印并另存为 PDF';
+  openDialog('previewModel');
+}
+function confirmPreview(){
+  const w=window._prevExport; if(!w) return;
+  if(w.fmt==='html'){ download(w.title+'.html', wrapHtml(w.title, w.body), 'text/html;charset=utf-8'); closeDialog('previewModel'); }
+  else downloadPdf(w.title, w.body);
+}
+function wrapHtml(title, body){
+  return '<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><title>'+title+'</title>'
+    + '<style>body{font-family:"PingFang SC","Microsoft YaHei",system-ui,sans-serif;color:#17202b;background:#eef3f6;margin:0;padding:24px}.wrap{max-width:860px;margin:0 auto;background:#fff;border-radius:16px;padding:24px 28px;box-shadow:0 8px 24px rgba(20,40,60,.08)}h1{font-size:22px;color:#0e9487}.p-day{background:#f6faf9;border:1px solid #e5ecf0;border-radius:12px;margin:12px 0;padding:12px 14px}.p-day-head{font-weight:800;color:#0e9487;margin-bottom:6px}.p-item{padding:7px 0;border-top:1px dashed #e8eef0}.p-item:first-child{border-top:none}.p-top{display:flex;justify-content:space-between;gap:10px}.p-name{font-weight:700}.p-target{color:#0e9487;font-weight:800}.p-gear{color:#7c8894;font-size:13px}.p-tip{color:#df8a0e;font-size:13px}table{width:100%;border-collapse:collapse;font-size:13px;margin:8px 0 18px}th,td{border:1px solid #e5ecf0;padding:7px 9px;text-align:left}th{background:#eef6f4;color:#0e9487}h4{color:#17202b;margin:18px 0 6px}</style>'
+    + '</head><body><div class="wrap"><h1>'+title+'</h1>'+body+'</div></body></html>';
+}
+function downloadPdf(title, body){
+  const html = wrapHtml(title+'（PDF）', body);
+  let area=document.getElementById('printArea');
+  let ifr=area.querySelector('iframe');
+  if(!ifr){ ifr=document.createElement('iframe'); area.appendChild(ifr); }
+  const win=ifr.contentWindow;
+  ifr.onload=function(){ setTimeout(function(){ try{ win.focus(); win.print(); }catch(e){} },80); };
+  win.document.open(); win.document.write(html); win.document.close();
+}
+
+/* 导出内容构建 */
+function recTableRows(){
+  const weeks=collectWeeks(); const work=[], meta=[];
+  weeks.forEach(w=>{ const lab=shortLabel(w.stamp), d=w.data;
+    DAY_ORDER.forEach(n=>{ (DAYS[n] && d[n] && d[n].items || []).forEach((rec,i)=>{ const itm=(DAYS[n].items||[])[i]; if(!itm) return; const st=rec.skip?'摸鱼跳过':(rec.done?'完成':'未完成'); work.push([lab, DAYS[n].title+' '+DAYS[n].name, itm.name, itm.target, rec.val||'', unitOf(itm), st, rec.note||'']); }); });
+  });
+  weeks.forEach(w=>{ const m=w.data.meta; if(m && (m.w||m.b||m.wa||m.hi||m.le)) meta.push([shortLabel(w.stamp), m.w||'', m.b||'', m.wa||'', m.hi||'', m.le||'']); });
+  return {weeks, work, meta};
+}
+function buildRecJson(){
+  const {work, meta}=recTableRows();
+  return { exportType:'训练记录表', 导出时间:new Date().toLocaleString(),
+    records: work.map(r=>({周:r[0],训练日:r[1],动作:r[2],目标:r[3],数值:r[4],单位:r[5],状态:r[6],备注:r[7]})),
+    bodyData: meta.map(r=>({周:r[0],体重kg:r[1],体脂率:r[2],腰围cm:r[3],臀围cm:r[4],腿围cm:r[5]})) };
+}
+function buildExportRec(){
+  const esc=h=>String(h==null?'':h).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  const {work, meta}=recTableRows();
+  let h='';
+  h+='<h4>训练记录</h4>';
+  if(work.length){ h+='<table><thead><tr><th>周</th><th>训练日</th><th>动作</th><th>目标</th><th>数值</th><th>单位</th><th>状态</th><th>备注</th></tr></thead><tbody>'+work.map(r=>'<tr>'+r.map(c=>'<td>'+esc(c)+'</td>').join('')+'</tr>').join('')+'</tbody></table>'; }
+  else h+='<p style="color:#7c8894">暂无训练记录</p>';
+  h+='<h4>身体数据</h4>';
+  if(meta.length){ h+='<table><thead><tr><th>周</th><th>体重kg</th><th>体脂率%</th><th>腰围cm</th><th>臀围cm</th><th>腿围cm</th></tr></thead><tbody>'+meta.map(r=>'<tr>'+r.map(c=>'<td>'+esc(c)+'</td>').join('')+'</tr>').join('')+'</tbody></table>'; }
+  else h+='<p style="color:#7c8894">暂无身体数据</p>';
+  return h;
+}
+
+/* 导入：预览 + 命名 + 确认 */
+let pendingImport=null;
+function importPlan(inp){
+  const f=inp.files && inp.files[0]; if(!f) return;
+  const r=new FileReader();
+  r.onload=()=>{
+    try{
+      const p=JSON.parse(r.result);
+      if(!(p && p[1] && Array.isArray(p[1].items))) throw new Error('bad');
+      pendingImport=p;
+      document.getElementById('importName').value = '自定义计划 '+(planNames().length+1);
+      document.getElementById('importPreview').innerHTML = buildPlanFragment(p);
+      openDialog('importModel');
+    }catch(e){ alert('导入失败：文件不是有效的训练计划 JSON'); }
+  };
+  r.readAsText(f);
+  inp.value='';
+}
+function confirmImport(){
+  let nm=document.getElementById('importName').value.trim(); if(!nm) nm='自定义计划';
+  const plans=loadPlans(); let base=nm, k=2;
+  while(plans[base]){ base=nm+' ('+k+')'; k++; }
+  plans[base]=pendingImport; savePlans(plans); setActivePlan(base);
+  DAYS=pendingImport; pendingImport=null;
+  closeDialog('importModel'); closeDetail(); render(); fillDayBtns(); refreshPlanNames();
+  alert('已导入并启用「'+base+'」');
+}
+
+/* 切换训练计划 */
+function openSwitchPlan(){
+  refreshPlanNames();
+  document.getElementById('switchCur').textContent = activePlanName()||'（无）';
+  const cur=activePlanName();
+  const list=document.getElementById('switchList');
+  list.innerHTML = plNames.map((n,i)=>{
+    const p=loadPlans()[n]||{};
+    const cnt=DAY_ORDER.reduce((s,dn)=> s+((p[dn]&&p[dn].items)?p[dn].items.length:0),0);
+    return `<div class="ps-item ${n===cur?'active':''}" onclick="switchTo(${i})">
+      <span class="del" onclick="event.stopPropagation();delPlan(${i})" title="删除">✕</span>
+      <div class="pn">${n}${n===cur?'　· 当前':''}</div>
+      <div class="pm">${cnt} 个动作</div>
+    </div>`;
+  }).join('') || '<div class="empty">暂无训练计划</div>';
+  openDialog('switchModel');
+}
+function switchTo(i){ const n=plNames[i]; if(!n) return; setActivePlan(n); DAYS=loadPlans()[n]||DAYS; closeDialog('switchModel'); render(); fillDayBtns(); }
+function delPlan(i){ const n=plNames[i]; if(!n) return; if(planNames().length<=1){ alert('至少保留一个训练计划'); return; }
+  const cur=activePlanName(); const plans=loadPlans(); delete plans[n]; savePlans(plans);
+  if(cur===n){ const n2=planNames()[0]; setActivePlan(n2); DAYS=loadPlans()[n2]||DAYS; }
+  render(); openSwitchPlan();
+}
+
+/* ---------- 日期 / 周 ---------- */
+let cur = new Date();
+function mondayOf(d){ const x=new Date(d); x.setHours(0,0,0,0); x.setDate(x.getDate()-((x.getDay()+6)%7)); return x; }
+function ymd(d){ return `${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}`; }
+function weekKey(m){ return `gym-week-${m.getFullYear()}-${ymd(m)}`; }
+function fmtRange(m){ const s=new Date(m); s.setDate(s.getDate()+6); return `${m.getMonth()+1}/${m.getDate()} – ${s.getMonth()+1}/${s.getDate()}`; }
+function todayWkday(){ return (new Date().getDay()+6)%7+1; }
+
+/* ---------- 数据 ---------- */
+function loadWeek(monday){
+  const wk = monday||mondayOf(cur), key = weekKey(wk);
+  let data = null;
+  try{ const raw = localStorage.getItem(key); data = raw? JSON.parse(raw):{}; }catch(e){ data={}; }
+  DAY_ORDER.forEach(n=>{
+    if(!data[n]) data[n]={};
+    const its = data[n].items||[];
+    data[n].items = DAYS[n].items.map((_,i)=> its[i]? {
+        val:String(its[i].val!==undefined?its[i].val:(its[i].weight||'')),
+        done:!!its[i].done, note:its[i].note||'', skip:!!its[i].skip
+      } : {val:'',done:false,note:'',skip:false});
+  });
+  if(!data.meta) data.meta={};
+  return {key,data};
+}
+function save(data){ localStorage.setItem(weekKey(mondayOf(cur)), JSON.stringify(data)); }
+
+function lastWeekVal(day, idx){
+  const m = new Date(mondayOf(cur)); m.setDate(m.getDate()-7);
+  const {data} = loadWeek(m);
+  return (data[day].items[idx]||{}).val || '';
+}
+function recType(it){ return it.rt || 'weight'; }
+function unitOf(it){ return it.u || (it.rt==='time'?'分钟':it.rt==='count'?'次':'kg'); }
+function fieldLabel(it){ const t=recType(it); return t==='count' ? `次数 (${unitOf(it)})` : (t==='time'?`时长 (${unitOf(it)})`:`重量 (${unitOf(it)})`); }
+function collectWeeks(){
+  const out = [];
+  Object.keys(localStorage).forEach(k=>{
+    if(!k.startsWith('gym-week-')) return;
+    let raw; try{ raw = localStorage.getItem(k); }catch(e){ return; }
+    let data; try{ data = JSON.parse(raw); }catch(e){ return; }
+    const all = k.replace(/[^\d]/g,'');
+    if(all.length<8) return; // 无有效日期的周记录跳过
+    const stamp = all.slice(-8); // 取末尾 8 位，即 YYYYMMDD
+    out.push({key:k, stamp, data:data||{}});
+  });
+  out.sort((a,b)=> a.stamp.localeCompare(b.stamp));
+  return out;
+}
+function shortLabel(stamp){ const y=stamp.slice(0,4),m=stamp.slice(4,6),d=stamp.slice(6,8); return `${+m}/${+d}`; }
+
+/* ---------- 计算 ---------- */
+function todayDayNum(){ const w=todayWkday(); if(w===1)return 1; if(w===2)return 2; if(w===4)return 3; if(w===5)return 4; return 0; }
+function dayProgress(items){ if(!items.length)return 0; return Math.round(items.filter(i=> i.done).length/items.length*100); }
+function dayStatus(items){ const p=dayProgress(items); return p>=100?'done':p>0?'part':'wait'; }
+
+/* ---------- 周计划渲染 ---------- */
+function render(){
+  const {data} = loadWeek();
+  const today = todayDayNum();
+  document.getElementById('weekLabel').textContent = fmtRange(mondayOf(cur));
+  const dl = document.getElementById('dayList');
+  dl.innerHTML = DAY_ORDER.map(n=>{
+    const d=DAYS[n], p=dayProgress(data[n].items), itms=data[n].items;
+    const locked = !unlocked(n);
+    let badgeHtml, cls, mini;
+    if(locked){
+      cls='wait'; badgeHtml=`<span class="badge wait">🔒 未解锁</span>`;
+      mini=`<div class="day-title">先完成「${DAYS[n-1].title}」再开始</div><div class="mini-bar"><div style="width:0%"></div></div><div class="mini-label">待开始</div>`;
+    } else {
+      if(dayAllSkipped(itms)){ cls='done'; badgeHtml=`<span class="badge ${today===n?'today ':''}done">${today===n?'今天 · ':''}摸鱼已跳过</span>`; }
+      else if(dayStatus(itms)==='done'){ cls='done'; badgeHtml=`<span class="badge ${today===n?'today ':''}done">${today===n?'今天 · ':''}已完成 ✓</span>`; }
+      else if(dayStatus(itms)==='part'){ cls='part'; badgeHtml=`<span class="badge ${today===n?'today ':''}part">${today===n?'今天 · ':''}已填 ${p}%</span>`; }
+      else { cls='wait'; badgeHtml=`<span class="badge ${today===n?'today ':''}wait">${today===n?'今天 · ':''}待开始</span>`; }
+      mini=`<div class="day-title">${d.items.length} 个动作 · 点开填写</div><div class="mini-bar"><div style="width:${p}%"></div></div><div class="mini-label">已完成 ${p}%</div>`;
+    }
+    return `<div class="card day-card ${locked?'locked':''}" onclick="openDetail(${n})">
+      <div class="day-head"><div class="l">${d.title} · ${d.name}</div>${badgeHtml}</div>
+      ${mini}
+    </div>`;
+  }).join('');
+  updateMeta(data);
+  fillMetaForm();
+}
+
+/* 一周数据记录：第 4 天完成前灰色锁定；完成后自动展开 */
+function updateMeta(data){
+  const d4done = data && dayDone((data[4]||{items:[]}).items);
+  const card=document.getElementById('metaCard');
+  if(card) card.classList.toggle('locked', !d4done);
+  const body=document.getElementById('metaBody');
+  if(body) body.style.display = d4done?'':'none';
+}
+
+/* ---------- 抽屉（最简化，点开才展开） ---------- */
+let activeDay=null;
+function openDetail(n){
+  if(!unlocked(n)){ alert(lockMsg(n)); return; }
+  activeDay=n;
+  const {data}=loadWeek();
+  const d=DAYS[n];
+  document.getElementById('sheetTitle').textContent = `${d.title} · ${d.name}`;
+  const body=document.getElementById('sheetBody');
+  body.innerHTML = d.items.map((it,i)=>{
+    const rec=data[n].items[i];
+    const unit=unitOf(it), last=lastWeekVal(n,i);
+    let chips='';
+    if(rec.skip) chips=`<span class="chip skip">摸鱼 0</span>`;
+    else chips=`<span class="chip">${rec.val!==''?rec.val+unit:'未填'}</span>`;
+    if(last!=='') chips+=`<span class="chip last">上周 ${last}${unit}</span>`;
+    return `<div class="item ${rec.done?'done':''}" onclick="toggleExp(${i},event)">
+      <div class="row1">
+        <div class="info">
+          <div class="nm">${it.name}</div>
+          <div class="tp">目标 ${it.target}</div>
+          <div class="meta">${chips}</div>
+        </div>
+        <div class="ck ${rec.done?'on':''}" onclick="event.stopPropagation();toggleDone(${i})"></div>
+        <div class="chevron">⌄</div>
+      </div>
+      <div class="expand" onclick="event.stopPropagation()">
+        <div class="fields">
+          <div><label>${fieldLabel(it)}</label><input type="number" inputmode="decimal" value="${rec.val}" placeholder="0" oninput="setVal(${i},this.value)"></div>
+          <div><label>备注</label><input type="text" value="${rec.note||''}" placeholder="如 留2次余量" oninput="setNote(${i},this.value)"></div>
+        </div>
+        <button class="btn mini ghost" onclick="event.stopPropagation();skipAction(${i})">摸鱼跳过该项 · 记 0</button>
+      </div>
+    </div>`;
+  }).join('')
+  + `<div style="margin-top:6px"><button class="btn mini ghost" onclick="skipDay()">摸鱼跳过整个${DAYS[n].title} · 记 0</button></div>`;
+  document.getElementById('overlay').classList.add('show');
+  document.getElementById('sheet').classList.add('show');
+  document.body.style.overflow='hidden';
+}
+function toggleExp(i,e){ if(e) e.stopPropagation(); const it=document.querySelectorAll('#sheetBody .item')[i]; if(it) it.classList.toggle('expanded'); }
+function closeDetail(){ activeDay=null; document.getElementById('sheet').classList.remove('show'); document.getElementById('overlay').classList.remove('show'); document.body.style.overflow=''; render(); }
+function patch(i,fn){ const {data}=loadWeek(); fn(data[activeDay].items[i]); save(data); }
+function toggleDone(i){ patch(i,r=>{ r.done=!r.done; if(r.done) r.skip=false; }); const it=document.querySelectorAll('#sheetBody .item')[i]; if(it) it.classList.toggle('done'); }
+function setVal(i,v){ patch(i,r=>{ r.val=v; r.skip=false; }); }
+function setNote(i,v){ patch(i,r=>r.note=v); }
+function skipAction(i){ patch(i,r=>{ r.val='0'; r.skip=true; r.done=true; }); openDetail(activeDay); }
+function skipDay(){ const n=activeDay; const {key,data}=loadWeek(); data[n].items.forEach(r=>{ r.val='0'; r.skip=true; r.done=true; }); localStorage.setItem(key, JSON.stringify(data)); closeDetail(); }
+
+/* ---------- 视图切换 ---------- */
+function switchView(v){
+  document.getElementById('viewPlan').style.display = v==='plan'?'':'none';
+  document.getElementById('viewStats').style.display = v==='stats'?'':'none';
+  document.getElementById('viewPlanBtn').classList.toggle('on', v==='plan');
+  document.getElementById('viewStatsBtn').classList.toggle('on', v==='stats');
+  if(v==='stats'){ fillDayBtns(); drawBodyChart(); drawExChart(); }
+}
+
+/* ---------- 统计：身体数据 ---------- */
+function fillMetaForm(){
+  const {data}=loadWeek(); const m=data.meta||{};
+  document.getElementById('m_w').value = m.w||''; document.getElementById('m_b').value=m.b||'';
+  document.getElementById('m_wa').value=m.wa||''; document.getElementById('m_hi').value=m.hi||'';
+  document.getElementById('m_le').value=m.le||'';
+}
+function saveMeta(){
+  const {key,data}=loadWeek();
+  data.meta = {w:getV('m_w'), b:getV('m_b'), wa:getV('m_wa'), hi:getV('m_hi'), le:getV('m_le')};
+  localStorage.setItem(key, JSON.stringify(data));
+  const s=document.getElementById('metaSaved'); s.textContent='✓ 已保存本周数据';
+  setTimeout(()=> s.textContent='', 2500);
+  drawBodyChart();
+}
+function getV(id){ const v=document.getElementById(id).value.trim(); return v===''?'':parseFloat(v); }
+
+let bodyMetric='w';
+function initMetricBtns(){
+  document.querySelectorAll('#metricBtns button').forEach(b=>{
+    b.onclick=()=>{ bodyMetric=b.dataset.m; updateMetricBtns(); drawBodyChart(); };
+  });
+}
+function updateMetricBtns(){
+  document.querySelectorAll('#metricBtns button').forEach(b=> b.classList.toggle('on', b.dataset.m===bodyMetric));
+}
+function drawBodyChart(){
+  const sel=bodyMetric;
+  const weeks=collectWeeks();
+  const labels=[], vals=[];
+  weeks.forEach(w=>{ const v=w.data&&w.data.meta? w.data.meta[sel]:null; if(v!==undefined && v!=='' && v!==null){ labels.push(shortLabel(w.stamp)); vals.push(parseFloat(v)); } });
+  drawLine('bodyChart', labels, vals, sel==='b'?'体脂率%':( sel==='w'?'体重kg':'围度cm'));
+}
+
+/* ---------- 统计：动作数值（按训练日） ---------- */
+let exSelIdx=null; // 图例高亮的动作索引；null 表示显示全部
+let exSelDay=1;    // 当前选中的训练日
+function fillDayBtns(){
+  const b=document.getElementById('exDayBtns'); if(!b) return;
+  b.innerHTML = DAY_ORDER.map(n=>`<button type="button" class="${n===exSelDay?'on':''}" onclick="exSelDay=${n};fillDayBtns();drawExChart()">${DAYS[n]?DAYS[n].title:'Day '+n}</button>`).join('');
+}
+function drawExChart(){
+  const n=exSelDay;
+  document.getElementById('exTitle').textContent = DAYS[n].title+' · 动作数值变化';
+  const items=DAYS[n].items;
+  const weeks=collectWeeks();
+  const labels=weeks.map(w=>shortLabel(w.stamp));
+
+  // 每个动作：跨周的原始值（缺失为 null）
+  const series=items.map((it,idx)=>{
+    const vals = weeks.map(w=>{ const v=w.data&&w.data[n]&&w.data[n].items? w.data[n].items[idx].val : ''; return (v===''||v===null||v===undefined)? null : parseFloat(v); });
+    return {it, vals};
+  });
+
+  const leg=document.getElementById('exLegend'); leg.innerHTML='';
+  const c=document.getElementById('exChart'); if(!c)return;
+  const W=c.width=c.clientWidth*2, H=c.height=c.clientHeight*2;
+  const ctx=c.getContext('2d'); ctx.clearRect(0,0,W,H);
+  const pL=12,pR=10,pT=14,pB=30;
+  if(!weeks.length){ ctx.fillStyle='#9aa3af'; ctx.font='28px sans-serif'; ctx.textAlign='left'; ctx.fillText('暂无数据，请先记录', pL+8, H/2); leg.innerHTML=''; return; }
+
+  const colors=['#2563eb','#d97706','#16a34a','#dc2626','#9333ea','#0891b2','#db2777'];
+
+  // 网格（0–100%）
+  ctx.strokeStyle='#e5e7eb'; ctx.lineWidth=1;
+  ctx.fillStyle='#6b7280'; ctx.font='22px sans-serif';
+  for(let i=0;i<5;i++){ const gy=pT+(H-pT-pB)*i/4; ctx.beginPath(); ctx.moveTo(pL,gy); ctx.lineTo(W-pR,gy); ctx.stroke(); ctx.fillText(Math.round((1-i/4)*100)+'%', pL+4, gy-4); }
+  const labelsX = x=> pL + (W-pL-pR)*(weeks.length===1?0.5:x/(weeks.length-1));
+
+  // 每动作归一化到 0–1 便于同图比较趋势
+  const hasSel = exSelIdx!==null;
+  series.forEach((s,colIdx)=>{
+    const av=s.vals.filter(v=>v!==null);
+    const col=colors[colIdx%colors.length];
+    if(!av.length){
+      const li0=document.createElement('div'); li0.className='li'; li0.style.color='#9aa3af';
+      li0.innerHTML=`<span class="sw" style="background:#d1d5db"></span>${s.it.name}（${unitOf(s.it)}） 暂无记录`;
+      leg.appendChild(li0); return;
+    }
+    const active = !hasSel || colIdx===exSelIdx;
+    const min=Math.min(...av), max=Math.max(...av), rng=(max-min)||1;
+    if(active){
+      const ys=s.vals.map(v=> v===null? null : pT+(H-pT-pB)*(1-(v-min)/rng));
+      ctx.strokeStyle=col; ctx.lineWidth=3; ctx.lineJoin='round';
+      ctx.fillStyle=col;
+      ctx.beginPath(); let started=false;
+      for(let x=0;x<ys.length;x++){
+        if(ys[x]===null){ started=false; continue; }
+        if(!started){ ctx.moveTo(labelsX(x),ys[x]); started=true; } else ctx.lineTo(labelsX(x),ys[x]);
+      }
+      ctx.stroke();
+      ys.forEach((yy,x)=>{ if(yy===null)return; ctx.beginPath(); ctx.arc(labelsX(x), yy, 5, 0, 7); ctx.fill(); });
+    }
+    const li=document.createElement('div');
+    li.className='li'+(active&&hasSel?' on':(hasSel?' dim':''));
+    li.innerHTML=`<span class="sw" style="background:${col}"></span>${s.it.name}（${unitOf(s.it)}） ${min}–${max}`;
+    li.onclick=()=>{ exSelIdx = (exSelIdx===colIdx)? null : colIdx; drawExChart(); };
+    leg.appendChild(li);
+  });
+
+  ctx.fillStyle='#52718f'; ctx.font='23px sans-serif'; ctx.textAlign='center';
+  labels.forEach((t,i)=>{ ctx.fillText(t, labelsX(i), H-8); });
+}
+
+/* ---------- 折线图(canvas) ---------- */
+function drawLine(id, labels, vals, unit){
+  const c=document.getElementById(id); if(!c)return;
+  const W=c.width=c.clientWidth*2, H=c.height=c.clientHeight*2;
+  const ctx=c.getContext('2d'); ctx.clearRect(0,0,W,H);
+  const pL=10,pR=10,pT=14,pB=28, n=vals.length;
+  if(!n){ ctx.fillStyle='#9aa3af'; ctx.font='28px sans-serif'; ctx.fillText('暂无数据，请先记录', pL+20, H/2); return; }
+  const labelsX = x=> pL + (W-pL-pR)*(n===1?0.5:x/(n-1));
+  const min=Math.min(...vals), max=Math.max(...vals);
+  const rng = (max-min)||1;
+  const y = v=> pT + (H-pT-pB)*(1-(v-min)/rng);
+  // grid & label
+  ctx.strokeStyle='#e5e7eb'; ctx.lineWidth=1;
+  ctx.fillStyle='#6b7280'; ctx.font='24px sans-serif'; ctx.textAlign='center';
+  for(let i=0;i<5;i++){ const gy=pT+(H-pT-pB)*i/4; ctx.beginPath(); ctx.moveTo(pL,gy); ctx.lineTo(W-pR,gy); ctx.stroke(); }
+  ctx.strokeStyle='#2563eb'; ctx.lineWidth=4; ctx.lineJoin='round';
+  ctx.beginPath();
+  vals.forEach((v,i)=>{ const x=labelsX(i), yy=y(v); i===0?ctx.moveTo(x,yy):ctx.lineTo(x,yy); });
+  ctx.stroke();
+  ctx.fillStyle='#2563eb';
+  vals.forEach((v,i)=>{ const x=labelsX(i), yy=y(v); ctx.beginPath(); ctx.arc(x,yy,5,0,7); ctx.fill(); });
+  ctx.fillStyle='#52718f';
+  ctx.font='23px sans-serif';
+  labels.forEach((t,i)=>{ ctx.fillText(t, labelsX(i), H-8); });
+  ctx.fillStyle='#6b7280'; ctx.textAlign='left';
+  ctx.fillText(unit+'  ·  共'+n+'周', pL, H-30);
+}
+
+document.getElementById('prevW').onclick=()=>{ cur=new Date(mondayOf(cur)); cur.setDate(cur.getDate()-1); render(); };
+document.getElementById('nextW').onclick=()=>{ cur=new Date(mondayOf(cur)); cur.setDate(cur.getDate()+7); render(); };
+
+/* ---------- 训练活跃日历（需求 2） ---------- */
+function dayForWeekday(wd){
+  const fb={1:1,2:2,4:3,5:4};
+  for(const n of DAY_ORDER){ const d=DAYS[n]; if(d&&d.weekdays&&d.weekdays.indexOf(wd)>-1) return n; }
+  return fb[wd]||0;
+}
+function openCalendar(){
+  const weeks=collectWeeks();
+  const stamps=weeks.map(w=>w.stamp).sort();
+  if(!stamps.length){ alert('暂无训练数据'); return; }
+  const first=stamps[0], last=stamps[stamps.length-1];
+  document.getElementById('calRange').innerHTML = '共 <b>'+weeks.length+'</b> 周训练　'+ (+first.slice(4,6))+'/'+ (+first.slice(6,8))+' – '+(+last.slice(4,6))+'/'+ (+last.slice(6,8));
+
+  let start = new Date(+first.slice(0,4), +first.slice(4,6)-1, +first.slice(6,8));
+  start = mondayOf(start);
+  let end = new Date(+last.slice(0,4), +last.slice(4,6)-1, +last.slice(6,8)+7);
+  end = mondayOf(end);
+
+  const inner=document.getElementById('calInner'); inner.innerHTML='';
+  let curDay = new Date(start);
+  while(curDay <= end){
+    const col=document.createElement('div'); col.className='cal-col';
+    const thisMonday = new Date(curDay);
+    for(let wd=1; wd<=7; wd++){
+      const n = dayForWeekday(wd);
+      const cell=document.createElement('div');
+      if(n===0){ cell.className='cal-cell none'; }
+      else{
+        let data={}; try{ const raw=localStorage.getItem(weekKey(thisMonday)); data=raw?JSON.parse(raw):{}; }catch(e){}
+        const its = data[n]&&Array.isArray(data[n].items)? data[n].items : [];
+        const done = its.filter(i=>i&&i.done&&!i.skip).length;
+        const allSkip = its.length && its.every(i=>i&&i.done&&i.skip);
+        let lv = (done===0||allSkip)? 0 : (done>=its.length? 4 : Math.max(1, Math.round(done/its.length*4)));
+        cell.className='cal-cell l'+lv;
+        const ddate=new Date(thisMonday); ddate.setDate(ddate.getDate()+(wd-1));
+        cell.title = (ddate.getMonth()+1)+'/'+ddate.getDate()+' · '+(DAYS[n]?DAYS[n].title:'')+' · 完成 '+lv+'/4'+(allSkip?'（摸鱼）':'');
+        cell.onclick=()=>{ cur = new Date(thisMonday); closeDialog('calModel'); switchView('plan'); render(); };
+      }
+      col.appendChild(cell);
+    }
+    inner.appendChild(col);
+    curDay.setDate(curDay.getDate()+7);
+  }
+  openDialog('calModel');
+  const ie=document.getElementById('calInner'); ie.scrollLeft=ie.scrollWidth;
+}
+
+render();
+fillDayBtns();
+initMetricBtns();
+</script>
+
+<!-- 训练计划弹层 -->
+<div class="plan-modal" id="planModal">
+  <div class="plan-head">
+    <h3>训练计划</h3>
+    <button class="sheet-close" onclick="closePlan()">✕</button>
+  </div>
+  <div class="plan-body" id="planBody"></div>
+</div>
+
+<!-- 训练活跃日历 -->
+<div class="mdialog" id="calModel">
+  <div class="box">
+    <div class="mhead"><h3>训练活跃日历</h3><button class="sheet-close" onclick="closeDialog('calModel')">✕</button></div>
+    <div class="mbody">
+      <div class="cal-week" id="calRange"></div>
+      <div class="cal-head"><span></span><span>周一</span><span>周二</span><span>周三</span><span>周四</span><span>周五</span><span>周六</span><span>周日</span></div>
+      <div class="cal-scroll"><div class="cal-inner" id="calInner"></div></div>
+      <div class="cal-legend">
+        <span>少</span>
+        <span class="c l1"></span><span class="c l2"></span>
+        <span class="c l3"></span><span class="c l4"></span>
+        <span>多</span>
+        <span style="margin-left:10px;opacity:.75">点击任意格子可跳转到对应周</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 导入计划：预览 + 命名 -->
+<div class="mdialog" id="importModel">
+  <div class="box">
+    <div class="mhead"><h3>导入计划 · 预览</h3><button class="sheet-close" onclick="closeDialog('importModel')">✕</button></div>
+    <div class="mbody">
+      <div class="field-lab">
+        <label>计划的名称</label>
+        <input id="importName" placeholder="例如：我的减脂计划 1">
+      </div>
+      <div id="importPreview"></div>
+    </div>
+    <div class="mfoot">
+      <button class="btn ghost" onclick="closeDialog('importModel')">取消</button>
+      <button class="btn" onclick="confirmImport()">确认导入并启用</button>
+    </div>
+  </div>
+</div>
+
+<!-- 切换计划 -->
+<div class="mdialog" id="switchModel">
+  <div class="box">
+    <div class="mhead"><h3>切换训练计划</h3><button class="sheet-close" onclick="closeDialog('switchModel')">✕</button></div>
+    <div class="mbody">
+      <div class="hint-sel">当前计划：<b id="switchCur"></b>。点击某项即可切换，训练记录数据保留。</div>
+      <div class="plan-select-list" id="switchList"></div>
+    </div>
+  </div>
+</div>
+
+<!-- 导出：选择格式 -->
+<div class="mdialog" id="exportModel">
+  <div class="box">
+    <div class="mhead"><h3 id="exportTitle">导出</h3><button class="sheet-close" onclick="closeDialog('exportModel')">✕</button></div>
+    <div class="mbody">
+      <div class="fmt-list" id="exportFmts"></div>
+    </div>
+  </div>
+</div>
+
+<!-- 导出预览（HTML / PDF） -->
+<div class="mdialog" id="previewModel">
+  <div class="box">
+    <div class="mhead"><h3 id="previewTitle">导出预览</h3><button class="sheet-close" onclick="closeDialog('previewModel')">✕</button></div>
+    <div class="mbody" id="previewBody"></div>
+    <div class="mfoot">
+      <button class="btn ghost" onclick="closeDialog('previewModel')">返回</button>
+      <button class="btn" id="previewPrimary" onclick="confirmPreview()">导出</button>
+    </div>
+  </div>
+</div>
+
+<div id="printArea"></div>
+
+<!-- 在线更新提示 -->
+<div class="mdialog" id="updModel">
+  <div class="box">
+    <div class="mhead"><h3>发现新版本</h3><button class="sheet-close" onclick="closeDialog('updModel')">✕</button></div>
+    <div class="mbody">
+      <div class="hint-sel" style="font-size:13px;line-height:1.7">
+        <b id="updNew" style="color:var(--brand-deep)"></b> 已发布！<br>
+        <span id="updCur" style="color:var(--muted)"></span><br><br>
+        <span id="updNote" style="color:var(--muted)"></span>
+      </div>
+      <p style="font-size:12px;color:var(--muted);margin-top:6px">下载 APK 后打开即可覆盖安装，你的训练与身体数据会保留在设备本地。</p>
+    </div>
+    <div class="mfoot">
+      <button class="btn ghost" onclick="closeDialog('updModel')">稍后再说</button>
+      <button class="btn" id="updDl">下载并安装</button>
+    </div>
+  </div>
+</div>
+
+</body></html>
